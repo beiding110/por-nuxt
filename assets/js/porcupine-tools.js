@@ -1,4 +1,4 @@
-export default function(){
+export default (function(){
     var owner = {};
 
     /**
@@ -104,4 +104,4 @@ export default function(){
 	}
 
     return owner;
-}
+}())

@@ -1,8 +1,9 @@
 import createPersistedState from 'vuex-persistedstate';
 import * as Cookies from "js-cookie";
 import _pt from '~/assets/js/porcupine-tools';
+import config from '~/configs';
 
-const type = 'cookie';
+const type = config.plugins.vuexStorage;
 
 let cookieStorage = {
     getItem: function(key) {
@@ -20,10 +21,10 @@ let sessionStorageStorage = {
         return _pt.getSession(key);
     },
     setItem: function(key, value) {
-        return _pr.setSession(key, value);
+        return _pt.setSession(key, value);
     },
     removeItem: function(key) {
-        return _pr.setSession(key, '');
+        return _pt.setSession(key, '');
     }
 };
 

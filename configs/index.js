@@ -10,7 +10,15 @@ export default {
         element: true,
         vuexStorage: false,
         jquery: true,
-        sentry: 'https://4efc6c77e7e64921966612b3e3cc4355@sentry.io/5171325'
+        sentry: {
+            dsn: 'https://4efc6c77e7e64921966612b3e3cc4355@sentry.io/5171325',
+            map: {
+                // 要上传的文件夹
+                include: './dist',
+                // ~/为网站根目录，后续路径须对应source
+                urlPrefix: '~/'
+            }
+        }
     },
     proxy: {
         '/pms': {

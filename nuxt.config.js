@@ -1,9 +1,22 @@
 import config from './configs/index.js'
 
+var initSentry;
+
+if(config.plugins.sentry) {
+    initSentry = function($config) {
+        const SentryPlugin = require('@sentry/webpack-plugin')
+        $config.plugins.push(new SentryPlugin({
+            include: config.plugins.sentry.map.include,
+            release: process.env.RELEASE_VERSION,
+            configFile: 'sentry.properties',
+            urlPrefix: config.plugins.sentry.map.urlPrefix
+        }));
+    }
+};
+
 var baseConfig = {
     plugins: [
-        '~/plugins/axios',
-        '~/plugins/vuex-storage'
+        '~/plugins/axios'
     ],
     modules: [
         '@nuxtjs/axios',
@@ -47,10 +60,12 @@ var baseConfig = {
                     test: /\.(js|vue)$/,
                     loader: 'eslint-loader',
                     exclude: /(node_modules)/
-                })
+                });
             };
-            if(isClient) {
+            if(isClient && !isDev) {
                 config.devtool = 'source-map';
+
+                initSentry && initSentry(config);
             };
         },
         vendor: ['axios']

@@ -31,6 +31,7 @@ export default {
         }
     },
     mounted() {
+        console.log(sjdiof.a);
         $("body").append("xxx");
     }
 }

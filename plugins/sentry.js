@@ -6,7 +6,7 @@ import config from '~/configs';
 export default function({ app, isDev }) {
     if(!isDev){
         Raven
-        .config(config.plugins.sentry)
+        .config(config.plugins.sentry.dsn)
         .addPlugin(RavenVue, Vue)
         .install();
     }
