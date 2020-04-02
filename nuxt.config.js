@@ -77,6 +77,9 @@ if(config.plugins.element) {
     baseConfig.plugins.push('~/plugins/element-ui');
     baseConfig.build.vendor.push('element-ui');
 };
+if(config.plugins.element && config.plugins.myComs) {
+    baseConfig.plugins.push('~/plugins/my-components');
+};
 if(config.plugins.vuexStorage) {
     baseConfig.plugins.push('~/plugins/vuex-storage');
 };

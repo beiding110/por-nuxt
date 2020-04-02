@@ -103,5 +103,202 @@ export default (function(){
 		return setStorage('sessionStorage', key, value);
 	}
 
+    /**
+	 * 责任链类
+	 * @constructor
+	 */
+	owner.Chain = function () {
+		this.chain_arr = [];
+	}
+	owner.Chain.prototype = {
+		/**
+		 * 链的内容
+		 * @param  {function} fun 待执行函数，包含两个参数：通用参数及执行下一环节的函数
+		 * @return {this}     返回自身，可链式调用
+		 */
+		link: function (fun) {
+			var that = this;
+			if (typeof (fun) == 'function') {
+				this.chain_arr.push(fun);
+			};
+			return this;
+		},
+		/**
+		 * 执行责任链
+		 * @param  {Object} obj 责任链中的通用参数
+		 * @return {null}     [description]
+		 */
+		run: function (obj) {
+			var that = this,
+				index = 0,
+				obj = obj;
+
+			var loop = function () {
+				var this_node = that.chain_arr[index];
+				index++;
+				if (!!this_node) {
+					return this_node(obj, loop)
+				}
+			};
+
+			loop();
+		}
+	};
+
+    //对象深拷贝
+	owner.clone = function (obj) {
+		// Handle the 3 simple types, and null or undefined
+		if (null == obj || "object" != typeof obj) return obj;
+
+		// Handle Date
+		if (obj instanceof Date) {
+			var copy = new Date();
+			copy.setTime(obj.getTime());
+			return copy;
+		}
+
+		// Handle Array
+		if (obj instanceof Array) {
+			var copy = [];
+			for (var i = 0, len = obj.length; i < len; ++i) {
+				copy[i] = clone(obj[i]);
+			}
+			return copy;
+		}
+
+		// Handle Object
+		if (obj instanceof Object) {
+			var copy = {};
+			for (var attr in obj) {
+				if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+			}
+			return copy;
+		}
+
+		throw new Error("Unable to copy obj! Its type isn't supported.");
+	}
+
+    /********
+	接收地址栏参数
+	key:参数名称
+	**********/
+	owner.getSearch = function (key) {
+		var hash = [];
+		try {
+			hash = window.location.search.split('?')[1].split("&");
+		} catch (e) {}
+		var hashObj = {};
+		hash.forEach(function (item) {
+			hashObj[item.split("=")[0]] = item.split("=")[1];
+		});
+		if (!!key)
+			return /%u/.test(hashObj[key]) ? decodeURIComponent(hashObj[key]) : hashObj[key];
+		else
+			return hashObj;
+	}
+
+	/**
+	 * 将对象转化成search字符串
+	 * @param  {Object} obj  对象或数组
+	 * @param  {boolean} flag 是否携带'?'
+	 * @return {string}      返回的格式化后字符串
+	 */
+	owner.toSearch = function (obj, flag) {
+		var res = '?'
+		if (typeof obj == 'object' && Array.isArray(obj)) {
+			obj.forEach(function (item, index) {
+				res += ('[' + index + ']=' + owner.toSearch(item, true) + '&');
+			});
+		} else if (typeof obj == 'object') {
+			Object.keys(obj).forEach(function (key) {
+				if (typeof obj[key] == 'object' && Array.isArray(obj[key])) {
+					obj[key].forEach(function (item, index) {
+						res += (key + '[' + index + ']=' + owner.toSearch(item, true) + '&')
+					});
+				} else if (typeof obj[key] == 'object' && obj[key] != null) {
+					res += (owner.toSearch(obj[key], true) + '&');
+				} else {
+					var item = /[\u3220-\uFA29]/.test(obj[key]) ? encodeURIComponent(obj[key]) : obj[key];
+					res += (key + '=' + (item || '') + '&');
+				}
+
+			});
+		} else {
+			return obj;
+		}
+		return !!flag ? res.slice(1, -1) : res.slice(0, -1);
+	};
+
+    /**
+	 * 下载功能
+	 * @param  {string} path 附件服务器完整地址
+	 * @return {Boolean}      结果
+	 */
+	owner.downloader = function (path) {
+		var eleA = document.createElement('a');
+		if ('download' in eleA) {
+			eleA.setAttribute('download', path);
+			eleA.setAttribute('href', path);
+
+			eleA.innerHTML = 'downloading';
+
+			document.body.appendChild(eleA);
+
+			setTimeout(function () {
+				eleA.click();
+				document.body.removeChild(eleA);
+			}, 1000 / 24);
+			return true;
+		};
+
+		try {
+			var elemIF = document.createElement("iframe");
+			elemIF.style.display = "none";
+			document.body.appendChild(elemIF);
+			elemIF.src = path;
+			setTimeout(function () {
+				document.body.removeChild(elemIF);
+			}, 333);
+			return true;
+		} catch (e) {
+			var form = document.createElement('form');
+			form.setAttribute('method', 'get');
+			form.setAttribute('action', path);
+			document.body.appendChild(form);
+			setTimeout(function () {
+				form.submit();
+				document.body.removeChild(form);
+			}, 1000 / 24);
+			return true;
+		}
+
+		if (!window.open(url)) { // popup blocked, offer direct download:
+			if (confirm("请使用右键-另存为进行下载，完成后点击后退返回当前页面")) {
+				location.href = url;
+			}
+		}
+		return true;
+	}
+
+    /**
+	 * 遍历型对象混入，将obj混入target
+	 * @param  {Object} obj    待混入的对象
+	 * @param  {Object} target 混入目标对象
+	 * @param  {Boolean} state  是否覆盖混入
+	 * @return {object}        混入后的对象
+	 */
+	owner.mixin = function (obj, target, state) {
+        obj = obj || {};
+		Object.keys(obj).forEach(function (key) {
+			if (state) {
+				target[key] = obj[key];
+			} else {
+				if (!target[key])
+					target[key] = obj[key];
+			}
+		});
+		return target;
+	}
+
     return owner;
 }())

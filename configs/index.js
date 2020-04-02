@@ -8,6 +8,7 @@ export default {
     },
     plugins: {
         element: true,
+        myComs: true,
         vuexStorage: false,
         jquery: true,
         sentry: {
@@ -24,6 +25,11 @@ export default {
         '/pms': {
             target: 'http://192.168.1.100:12000',
             changeOrigin:true,
+        },
+        '/platform': {
+            target: 'http://www.hgchzx.com',
+            changeOrigin:true,
         }
-    }
+    },
+    cnzz: ''
 }

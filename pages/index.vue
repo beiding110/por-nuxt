@@ -8,9 +8,15 @@
             <input v-model="form.pwd" />
         </div>
 
+        <cnzz></cnzz>
+
         <el-button @click="clickHandler">提交</el-button>
-        <a
-        class="button--grey" @click="clickHandler">click</a>
+        <a class="button--grey" @click="clickHandler">click</a>
+
+        <my-form>
+            <my-checkbox :data="[{key:1,value:'123'}, {key:2,value:'234'}]"></my-checkbox>
+        </my-form>
+        <my-pagination action="/platform/index/news/list"></my-pagination>
     </section>
 </template>
 
@@ -24,14 +30,13 @@ export default {
     }),
     methods: {
         clickHandler() {
-            this.$axios.post('/pms/login', this.form).then(res => {
-                this.$store.commit('userinfo/update', res.tdata.user);
-                // window.location.href = '/teamwork/project'
+            this.$post('/pms/login', this.form, (data, res) => {
+                console.log(data, res)
             });
         }
     },
     mounted() {
-        console.log(sjdiof.a);
+        // console.log(sjdiof.a);
         $("body").append("xxx");
     }
 }
