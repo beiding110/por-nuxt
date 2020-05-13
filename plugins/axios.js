@@ -30,34 +30,12 @@ export default function ({store, redirect, app: { $axios, $cookies, $message }})
     $axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
     $axios.defaults.withCredentials = true;
 
-	$axios.onRequest(config => {
+    //request拦截器
+    $axios.interceptors.request.use(config => {
         return new Promise((resolve) => {
-            var switchObj = {
-                post: () => {
-                    let data = config.data;
-                    config.data = qs.stringify(data);
-                },
-                get: () => {
-                    let data = config.params;
-                    config.data = qs.stringify(data);
-                }
-            };
-            switchObj[config.method]();
-
             resolve(config);
         });
-	});
-    $axios.onResponse(res => {
-
-    });
-	$axios.onError(error => {
-
-	});
-
-    //request拦截器
-    $axios.interceptors.request.use(function (request) {
-        return request;
-    }, function (error) {
+	}, function (error) {
         // 对请求错误做些什么
         return Promise.reject(error);
     });
