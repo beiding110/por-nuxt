@@ -1,10 +1,13 @@
 <template>
-    <div>
+    <div
+    v-loading="getListLoading"
+    element-loading-text="附件内容更新中"
+    >
         <el-upload
         multiple
         :drag="drag && !readonly"
         ref="FileUp"
-        :action="action"
+        :action="uploadAction"
         :data="extraData"
         :show-file-list="false"
         :limit="limit"
@@ -14,12 +17,15 @@
         :on-error="onError"
         :auto-upload="!lazy"
         :on-change="onchange"
-        :accept="fileType">
-        <slot slot="trigger">
-            <template v-if="!drag">
-                <el-button size="small" type="primary" v-show="myReadonly"><i class="el-icon-upload"></i> {{title}}</el-button>
-            </template>
-            <template v-else>
+        :accept="fileType"
+        v-loading="loading"
+        element-loading-text="上传中"
+        >
+            <slot slot="trigger">
+                <template v-if="!drag">
+                    <el-button size="small" type="primary" v-show="myReadonly"><i class="el-icon-upload"></i> {{title}}</el-button>
+                </template>
+                <template v-else>
                     <template v-if="myReadonly">
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -32,11 +38,14 @@
             </template>
 
             <span :style="{marginLeft:readonly ? '' : '1em'}" v-if="single" class="single__file--name">
-                <a
-                target="_blank"
-                :href="fileList[0] ? (fileList[0].filesavepath + pathSupply) : ''">
-                    {{fileList[0] ? fileList[0].fileoldname + '.' + fileList[0].filetype : ''}}
-                </a>
+                <span v-if="fileList[0]">
+                    <a
+                    target="_blank"
+                    :href="buildDownloadPath(fileList[0])">
+                        {{fileList[0].filename}}
+                    </a>
+                    <i class="el-icon-circle-close btn-sf-del" @click="singleFileDel(fileList[0])" v-if="!readonly"></i>
+                </span>
             </span>
             <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload" v-if="lazy">上传到服务器</el-button>
         </el-upload>
@@ -58,12 +67,12 @@
                 <template slot-scope="scope">
                     <a
                     target="_blank"
-                    :href="scope.row.filesavepath + pathSupply">
-                        {{scope.row.fileoldname + '.' + scope.row.filetype}}
+                    :href="buildDownloadPath(scope.row)">
+                        {{scope.row.filename}}
                     </a>
                 </template>
             </el-table-column>
-            <el-table-column prop="addtime" label="上传时间" sortable></el-table-column>
+            <el-table-column prop="fileuptime" label="上传时间" sortable></el-table-column>
             <el-table-column prop="addusername" label="上传人"></el-table-column>
             <el-table-column label="操作" width="150px" v-if="myReadonly">
                 <template slot-scope="scope">
@@ -79,7 +88,7 @@ export default {
     props: {
         action: {
             type: String,
-            default: '/bhtong/sysfile/sys/uploadfile'
+            default: ''
         },
         fileType: {
             type: String,
@@ -117,6 +126,14 @@ export default {
             type: Boolean,
             default: false
         },
+        type: {
+            type: String,
+            default: 'agenct'
+        },
+        extra: {
+            type: Object,
+            default: () => ({})
+        }
     },
     data: function () {
         return {
@@ -125,7 +142,8 @@ export default {
             fileList: [],
             percent: 0,
             percentStatus: '',
-            loading: null,
+            loading: false,
+            getListLoading: false,
 
             fileTypeObj: {
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx'
@@ -133,43 +151,82 @@ export default {
         }
     },
     computed: {
+        uploadAction() {
+            return this.action || `${this.getGetters('fileUrl')}/upload/${this.type}/common.json`;
+        },
         myReadonly: function () {
             return !this.readonly;
         },
         extraData: function () {
-            return {
-                FileGuid: this.fileGuid,
-                FileType: this.fileType,
-                Multifile: !this.single
-            }
+            var extra = {
+                fileguid: this.fileGuid,
+                filetype: this.fileType,
+                single: (this.single * 1)
+            };
+
+            mixin(this.extra, extra, true);
+
+            return extra;
         },
         pathSupply() {
             return /micromessenger/i.test(navigator.userAgent) ? '?mp.wexin.qq.com' : ''
         }
     },
     methods: {
-        bindFileList: function (fileGuid) { //绑定文件列表
+        bindFileList: function () { //绑定文件列表
             var that = this;
 
-            if(!fileGuid) {return;}
+            if(!this.fileGuid) return;
+            if(this.getListLoading) return;
 
-            this.$get("/bhtong/sysfile/getfilelist", {
-                id: fileGuid
-            }, function (data) {
-                that.fileList = data || [];
-                this.$emit('update', that.fileList);
+            this.getListLoading = true;
+            var data = {
+                fileguid: this.fileGuid
+            };
+            mixin(this.extra, data, true);
+
+            this.$ajax({
+                url: `${this.getGetters('fileUrl')}/operate/getlist.json`,
+                data,
+                callback: data => {
+                    this.fileList = data || [];
+                    this.$emit('update', this.fileList);
+                },
+                complete: () => {
+                    this.getListLoading = false;
+                }
             });
             this.fileListUpdateHandler();
         },
-        handleDelete: function (index, row) { //删除文件
-            var that = this;
-            this.$get("/bhtong/sysfile/delfile", {
-                id: row.rowguid
-            }, function (obj, res) {
-                that.fileList.splice(index, 1);
-                this.$emit('update', this.fileList);
+        deleteHandler(row, cb) {
+            ShowConfirm('删除附件后无法撤销，请确认是否删除', 'warning', () => {
+                this.getListLoading = true;
+                this.$ajax({
+                    type: 'post',
+                    url: `${this.getGetters('fileUrl')}/operate/delete.json`,
+                    data: {
+                        rowguid: row.rowguid
+                    },
+                    callback: data => {
+                        cb && cb();
+                        this.$emit('update', this.fileList);
+                    },
+                    complete: () => {
+                        this.getListLoading = false;
+                    }
+                });
+                this.fileListUpdateHandler();
             });
-            this.fileListUpdateHandler();
+        },
+        handleDelete: function (index, row) { //删除文件
+            this.deleteHandler(row, () => {
+                this.fileList.splice(index, 1);
+            });
+        },
+        singleFileDel(row) {
+            this.deleteHandler(row, () => {
+                this.fileList = [];
+            });
         },
         beforeAvatarUpload: function (file) {
             var arr = file.name.split('.');
@@ -192,25 +249,23 @@ export default {
                 ShowMsg.call(this, '文件大小超过:' + fs + 'M', 'error');
                 return false;
             };
-            this.loading = this.$loading({
-                lock: true,
-                text: '上传中',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.7)'
-            });
+            this.loading = true;
             return true;
         },
         handleExceed: function (files, fileList) {
             !!this.limit && ShowMsg.call(this, '限制上传' + this.limit + '个文件', 'error')
         },
         onSuccess: function (response, file, fileList) {
-            this.loading.close();
+            this.loading = false;
             var obj = typeof (response) == 'string' ? JSON.parse(response) : response;
 
             ajaxResCheck.call(this, obj, function () {
-                this.fileList = obj.tdata;
-                
-                ShowMsgBox.call(this, obj.msg ? obj.msg : "上传成功",'success');
+                // this.bindFileList();
+                var file = clone(obj.tdata[0]);
+                file.fileuptime = file.addtime;
+                this.fileList.push(file);
+
+                ShowMsg.call(this, obj.msg ? obj.msg : "上传成功",'success');
                 this.$emit('update', fileList);
                 this.$emit('success', obj);
             }.bind(this));
@@ -218,7 +273,7 @@ export default {
         },
         onError: function (err, file, fileList) {
             var that = this
-            this.loading.close();
+            this.loading = false;
             ShowMsgBox.call(this, err, 'error');
             this.percent = 100;
             this.percentStatus = 'exception'
@@ -235,13 +290,13 @@ export default {
             if (this.lazy) {
                 if (this.single) {
                     this.fileList.splice(0, 1, {
-                        fileoldname: file.name
+                        filename: file.name
                     })
                 } else {
                     var indexArr = [];
                     this.fileList.forEach(function (item) {
                         filelist.forEach(function (file, index) {
-                            if (item.fileoldname == file.name) {
+                            if (item.filename == file.name) {
                                 indexArr.push(index);
                             }
                         })
@@ -249,7 +304,7 @@ export default {
 
                     indexArr.forEach(function (item) {
                         this.fileList.push({
-                            fileoldname: filelist[item].name
+                            filename: filelist[item].name
                         });
                     });
                 }
@@ -259,18 +314,31 @@ export default {
         fileListUpdateHandler: function() {
             this.$emit('update', this.fileList);
             this.$emit('update:files', this.fileList);
+        },
+        buildDownloadPath(file) {
+            var search = toSearch({
+                rowguid: file.rowguid
+            });
+            return `${this.getGetters('fileUrl')}/download/common.do${search}`
         }
     },
     mounted: function () {
         try {
-            this.bindFileList(this.fileGuid);
+            this.bindFileList();
         } catch (e) {}
     },
     watch: {
         fileGuid: function (e) {
             if (e) {
-                this.bindFileList(e);
+                this.bindFileList();
             }
+        },
+        extra: {
+            handler(n, o) {
+                if(JSON.stringify(n) !== JSON.stringify(o)) {
+                    this.bindFileList();
+                }
+            }, deep: true
         }
     }
 }
@@ -279,4 +347,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     .file-type_tip{font-size:12px; color:#909399; line-height:1em;}
+    .btn-sf-del{cursor:pointer;}
+    .btn-sf-del:hover{color:red;}
 </style>

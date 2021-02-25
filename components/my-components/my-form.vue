@@ -1,31 +1,32 @@
 <template>
-    <el-form ref="form" :model="form" :label-width="labelWidth||'80px'" :size="size" :label-position="labelPosition"
-    :disabled="disabled || readonly" :class="disabled||readonly ? 'disabled' : ''"
-    :inline="inline" v-loading.sync="submitLoadingController">
-    <slot></slot>
-    <el-form-item label-width="0" style="text-align:center;margin-top: 20px;" v-if="!readonly">
-        <slot name="btn" :submit-handler="onSubmit" :cancle-handler="onCancle" :submit-loading="submitLoadingController">
-            <el-button type="primary" @click="onSubmit" class="form-btn" :loading="submitLoadingController">保存</el-button>
-            <el-button @click="onCancle" class="form-btn">取消</el-button>
-        </slot>
-    </el-form-item>
-</el-form>
+    <el-form
+    ref="form"
+    :model="form"
+    :label-width="labelWidth"
+    :size="size"
+    :label-position="labelPosition"
+    :disabled="disabled || readonly"
+    :class="{disabled:disabled||readonly, 'table-view':table}"
+    :inline="inline"
+    v-loading.sync="submitLoadingController">
+        <slot></slot>
+        <el-form-item label-width="0" class="btn-row" v-if="!readonly">
+            <slot name="btn" :submit-handler="onSubmit" :cancle-handler="onCancle" :submit-loading="submitLoadingController">
+                <el-button type="primary" @click="onSubmit" :style="btn_styl" :loading="submitLoadingController">保存</el-button>
+                <el-button @click="onCancle" :style="btn_styl">取消</el-button>
+            </slot>
+        </el-form-item>
+    </el-form>
 </template>
 
 <script>
-import _pt from '~/assets/js/porcupine-tools'
-
 export default {
     props: {
         labelWidth: {
             type: String,
-            default: '80px'
+            default: '120px'
         },
         value: {
-            type: Object,
-            default: () => ({})
-        },
-        detailExtra: {
             type: Object,
             default: () => ({})
         },
@@ -39,19 +40,11 @@ export default {
         },
         size: {
             type: String,
-            default: ''
+            default: 'small'
         },
         labelPosition: {
             type: String,
-            default: ''
-        },
-        inline: {
-            type: Boolean,
-            default: false
-        },
-        file: {
-            type: Boolean,
-            default: false
+            default: 'right'
         },
         disabled: {
             type: Boolean,
@@ -61,22 +54,38 @@ export default {
             type: Boolean,
             default: false
         },
+        beforeSend: {
+            type: [Function, Boolean],
+            default: false
+        },
+        afterSend: {
+            type: [Function, Boolean],
+            default: false
+        },
+        afterDetail: {
+            type: [Function, Boolean],
+            default: false
+        },
+        detailExtra: {
+            type: Object,
+            default: () => ({})
+        },
         sendStr: {
             type: Boolean,
             default: false
         },
-        beforeSend: {
-            type: Function,
-            default: function() {}
+        file: {
+            type: Boolean,
+            default: false
         },
-        afterSend: {
-            type: Function,
-            default: function() {}
+        inline: {
+            type: Boolean,
+            default: false
         },
-        afterDetail: {
-            type: Function,
-            default: function() {}
-        },
+        table: {
+            type: Boolean,
+            default: false
+        }
     },
     data() {
         return {
@@ -94,18 +103,21 @@ export default {
             set: function (n, o) {
                 this.$emit('input', n);
             }
+        },
+        btn_styl: function () {
+            return {
+                'display': 'inline-block'
+            }
         }
     },
     methods: {
         onSubmit: function (e, callback) {
-            var that = this;
+            var that = this,
+                ajaxRes;
 
-            new _pt.Chain().link(function (obj, next) {
+            new Chain().link(function (obj, next) {
                 if (obj.submitLock) {
-                    obj.notify({
-                        message: '提交过快，请稍后重试',
-                        type: 'warning'
-                    });
+                    ShowMsg.call(obj, '提交过快，请稍后重试');
                     return;
                 };
                 next();
@@ -122,10 +134,17 @@ export default {
                     next()
                 });
             }).link(function (obj, next) {
-                !!obj.beforeSend && obj.beforeSend();
-                obj.$nextTick(function () {
+                if(obj.beforeSend) {
+                    obj.beforeSend(function() {
+                        obj.$nextTick(function () {
+                            next();
+                        })
+                    }, function() {
+                        obj.submitEnd();
+                    });
+                } else {
                     next();
-                })
+                }
             }).link(function (obj, next) {
                 obj.$refs['form'].validate(function (valid) {
                     if (valid) {
@@ -142,11 +161,9 @@ export default {
                                 url: obj.submitUrl,
                                 data: obj.form,
                                 callback: function (data, res) {
+                                    ajaxRes = res;
                                     obj.$emit('submit');
-                                    obj.notify({
-                                        message: res.msg,
-                                        type: 'success'
-                                    });
+                                    ShowMsg.call(obj, res.msg || '保存成功', 'success');
 
                                     obj.close();
 
@@ -167,7 +184,7 @@ export default {
                     };
                 });
             }).link(function (obj, next) {
-                !!obj.afterSend && obj.afterSend();
+                !!obj.afterSend && obj.afterSend(ajaxRes);
                 obj.$nextTick(function () {
                     next();
                 })
@@ -184,6 +201,8 @@ export default {
         close: function () {
             var that = this;
             try {
+                this.onCancle();
+
                 this.submitEnd();
             } catch (e) {}
         },
@@ -215,7 +234,7 @@ export default {
                             this.form = data;
                         })
                     } else {
-                        // !!this.afterDetail && this.afterDetail();
+                        !!this.afterDetail && this.afterDetail();
                     }
                 }
             }
@@ -226,19 +245,32 @@ export default {
     },
     mounted: function () {
         var that = this;
-        // this.shadebox = new ShadeBox({
-        //     innerHTML: '<div style="position:absolute; left:50%; top:40%; transform:translate(-50%,-50%)"><i class="el-icon-loading"></i>处理中……</div>'
-        // });
         this.queryDetail();
     }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
 .disabled.el-form /deep/ .el-form-item {
     margin-bottom: 2px;
 }
+.btn-row{text-align:center; margin-top:20px;}
 
-.form-btn{display:inline-block;}
+$tableBorderColor: #E8E8E8;
+.table-view{border-left:1px solid $tableBorderColor; border-top:1px solid $tableBorderColor; overflow:hidden; display:flex; flex-wrap:wrap;
+    /deep/ .el-form-item{margin:0; border-right:1px solid $tableBorderColor; border-bottom:1px solid $tableBorderColor; box-sizing:border-box;}
+    /deep/ .el-form-item:not(.btn-row){width:50%; position:relative;
+        .el-form-item__label{height:100%; line-height:normal; border-right:1px solid $tableBorderColor; box-sizing:border-box; background:#F9FBFE; display:flex; align-items:center; justify-content:flex-end;}
+        .el-form-item__content{padding:5px; position:relative; min-height:2em;
+            .el-form-item__error{top:auto; bottom:0; left:5px;}
+        }
+    }
+    .btn-row{width:100%; padding:1em 0;}
+}
+@media screen and (max-width: 1000px) {
+    .table-view{
+        /deep/ .el-form-item:not(.btn-row){width:100%;}
+    }
+}
 </style>

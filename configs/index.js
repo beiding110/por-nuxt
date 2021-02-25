@@ -19,6 +19,10 @@ export default {
                 // ~/为网站根目录，后续路径须对应source
                 urlPrefix: '~/'
             }
+        },
+        cnzz: {
+            id: '1275340054',
+            show: 'pic1'
         }
     },
     proxy: {

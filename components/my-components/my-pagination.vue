@@ -1,15 +1,20 @@
 <template>
-    <div class="my-pagination" :class="'my-pagination_' + position">
+    <div :class="theme=='dark' ? '' : 'my__pagination'">
         <el-pagination
-        layout="prev, pager, next"
-        :total="total"
-        :page-size="!!search ? search.pagesize || 10 : 10"
-        :current-page.sync="currentPage"
-        @current-change="handleCurrentChange"></el-pagination>
+            layout="prev, pager, next"
+            :total="total"
+            :page-size="!!search ? search.pagesize || defaultSearch.pagesize : defaultSearch.pagesize"
+            :current-page.sync="currentPage"
+            style="text-align:right; margin-top:1em;"
+            @current-change="handleCurrentChange"
+        ></el-pagination>
     </div>
 </template>
 
 <script>
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 export default {
     props: {
         value: {
@@ -32,6 +37,10 @@ export default {
             type: Function,
             default: function(){}
         },
+        beforeQuery: {
+            type: Function,
+            default: function(){}
+        },
         afterQuery: {
             type: Function,
             default: function(){}
@@ -44,15 +53,20 @@ export default {
             type: Boolean,
             default: false
         },
-        position: {
-            type: String,
-            default: 'right'
+        loading: {
+            type: Boolean,
+            default: false
         }
     },
     data () {
         return {
             total: 1,
-            currentPage: 1
+            currentPage: 1,
+            defaultSearch: {
+                sortname: 'addtime',
+                sortorder: 'desc',
+                pagesize: 20
+            }
         }
     },
     computed: {
@@ -68,28 +82,45 @@ export default {
     methods: {
         queryData: function (page) {
             var that = this;
+            NProgress.start();
             this.$nextTick(function () {
                 if (!that.action) {
                     throw new Error('请绑定action属性（数据api请求地址）');
                 } else {
-                    page = (page || 1);
+                    page = !!getHash('page') ? getHash('page') : (page || 1);
 
                     var searchData = {};
                     var searchData = this.search || {};
 
                     this.currentPage = page;
                     searchData.pageindex = page;
-                    searchData.sortname = (!!searchData.sortname || searchData.sortname === '') ? searchData.sortname : 'addtime';
-                    searchData.sortorder = searchData.sortorder || 'desc';
 
-                    this.$get(that.action, searchData, function (data, res) {
-                        !!this.afterQuery && this.afterQuery(data.rows, data);
-                        that.pageData = data.rows;
-                        that.$nextTick(function() {
-                            that.total = data.total;
-                        });
+                    mixin(this.defaultSearch, searchData);
 
-                        this.$emit('update:extra', data.extra);
+                    !!this.beforeQuery && this.beforeQuery(searchData);
+                    this.$emit('update:loading', true);
+
+                    this.$ajax({
+                        url: that.action,
+                        data: searchData,
+                        callback: (data, res) => {
+                            if (data.rows.length === 0 && this.currentPage !== 1) {
+                                this.queryData(--this.currentPage);
+                                return;
+                            };
+
+                            !!this.afterQuery && this.afterQuery(data.rows, data);
+                            that.$emit('update:loading', false);
+                            that.pageData = data.rows;
+                            that.$nextTick(function() {
+                                that.total = data.total;
+                            });
+
+                            this.$emit('update:extra', data.extra);
+                        },
+                        complete() {
+                            NProgress.done();
+                        }
                     });
                 }
             })
@@ -104,15 +135,12 @@ export default {
         }
     },
     mounted: function() {
-        !this.lazy && this.queryData(1)
+        !inAttr(this.lazy) && this.queryData(1)
     }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-.my-pagination{margin-top:1em;}
-.my-pagination.my-pagination_left{text-align:left;}
-.my-pagination.my-pagination_center{text-align:center;}
-.my-pagination.my-pagination_right{text-align:right;}
+<style>
+
 </style>

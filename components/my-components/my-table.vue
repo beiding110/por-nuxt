@@ -1,19 +1,20 @@
 <template>
-    <div class="my__table">
-        <el-table
+    <el-table
         ref="table"
+        class="my__table"
         :border="border"
-        :data.sync="!!url ? innerData : data"
+        :data.sync="tableData"
         @selection-change="handleSelectionChange"
         @sort-change="sortChange"
         :height="height"
         :max-height="maxHeight"
         :summary-method="summaryMethod"
-        :show-summary="showSummary">
+        :show-summary="showSummary"
+        :span-method="spanMethod"
+        >
             <el-table-column type="selection" width="55" v-if="select" :selectable="selectable"></el-table-column>
         	<slot></slot>
         </el-table>
-    </div>
 </template>
 
 <script>
@@ -54,7 +55,7 @@ export default {
         },
         border: {
             type: Boolean,
-            default: false
+            default: true
         },
         height: {
             type: [String, Number]
@@ -75,27 +76,41 @@ export default {
             default: function() {
                 return true;
             }
-        }
+        },
+        spanMethod: {
+            type: Function,
+            default: function() {}
+        },
     },
     data () {
         return {
-            innerData: []
+            innerData: [],
+
+            valueWatchLock: false,
         }
     },
     computed: {
-        model: {
-            get: function() {
-                return this.value;
-            },
-            set: function(e) {
-                this.$emit('input', e)
-            }
+        tableData() {
+            return this.url ? this.innerData : this.data;
+        }
+    },
+    watch: {
+        value: {
+            handler(n, o) {
+                if(n === o || !n) return;
+                if(!this.tableData.length) return;
+                if(this.valueWatchLock) return;
+
+                this.$nextTick(() => {
+                    this.setRowSelection(n);
+                })
+            }, deep: true
         }
     },
     methods: {
         //表格选中项变化
         handleSelectionChange: function(node) {
-            this.model = node;
+            this.$emit('input',node);
             this.$emit('selectchange',node);
         },
         /*表格排序事件*/
@@ -114,7 +129,21 @@ export default {
                 });
                 this.innerData = data;
             })
-        }
+        },
+        setRowSelection(rows) {
+            if (rows) {
+                rows.forEach(row => {
+                    var index = this.data.indexOf(row),
+                        data = this.tableData;
+
+                    this.$refs.table.toggleRowSelection(data[index]);
+                });
+            } else {
+                this.$refs.table.clearSelection();
+            }
+
+            this.valueWatchLock = true;
+        },
     },
     mounted: function() {
         this.queryData();
@@ -123,19 +152,18 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
-    .el-table th.is-leaf{background:#FAFAFA;}
-    .my__table /deep/ .el-button.el-button--text{padding:0;}
-    /* .my__table{padding: 2em;}
-    .my__table .el-table{color: white;}
-    .my__table .el-table thead{color: white;}
-    .my__table .el-table td, .my__table .el-table th.is-leaf{border-bottom-color: rgba(255, 255, 255, .5)}
-    .my__table .el-table, .my__table .el-table th, .my__table .el-table tr{background-color: inherit;}
-    .my__table .el-table--enable-row-hover .el-table__body tr:hover>td{background-color: rgba(255, 255, 255, 0.1);}
-
-    .my__table .el-table--border::after, .my__table .el-table--group::after, .my__table .el-table::before{background-color: rgba(255, 255, 255, .5);}
-    .my__table .el-table .ascending .sort-caret.ascending{border-bottom-color: #FFCC55;}
-    .my__table .el-table .descending .sort-caret.descending{border-top-color: #FFCC55;}
-
-    .my__table .el-table__footer-wrapper tbody td, .my__table .el-table__header-wrapper tbody td{background: inherit; color:white;} */
+<style scoped lang="scss">
+.my__table{width:100%;
+    /deep/ {
+        .el-button--text{text-align:left;
+            span{word-break:break-all; white-space:normal; }
+        }
+        .el-table__header{
+            min-width: 100% !important;
+        }
+        .el-table__body{
+            min-width: 100% !important;
+        }
+    }
+}
 </style>

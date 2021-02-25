@@ -1,15 +1,17 @@
 <template>
     <el-select
     v-model="svalue"
-    :placeholder="placeholder"
     filterable
     @change="selectChange"
     @visible-change="visibleChange"
     @focus="focus"
+    :placeholder="placeholder"
     :clearable="clearable"
     :size="size"
     :disabled="disabled"
-    :allow-create="allowCreate">
+    :allow-create="allowCreate"
+    :multiple="multiple"
+    >
         <el-option
         v-for="pName in Object.keys(options)"
         :key="options[pName][props.value]"
@@ -31,14 +33,11 @@ export default {
             type:Boolean,
             default:true
         },
-        multireturn: {
-            default: false
-        }, //是否返回多个值
         url: {
             type: String
         }, //导入的url地址
         value: {
-            type: String
+            type: [String, Number, Array]
         }, //接受外部v-model传入的值
         props: {
             type: Object,
@@ -53,16 +52,14 @@ export default {
             type: String,
             default: '请选择'
         },
-        filterable: {
-            type: Boolean,
-            default: true
-        },
+        filterable: {},
         multiple: {
             type: Boolean,
             default: false
         },
         size: {
-            type: String
+            type: String,
+            default: 'small'
         },
         allowCreate: {
             type: Boolean,
@@ -74,6 +71,14 @@ export default {
         data: {
             type: Array,
             default: () => []
+        },
+        modelStr: {
+            type: Boolean,
+            default: false
+        },
+        strSpliter: {
+            tyep: String,
+            default: ','
         }
     },
     data () {
@@ -84,10 +89,26 @@ export default {
     computed: {
         svalue: {
             get: function () {
-                return this.value;
+                if(this.modelStr) {
+                    var valueArr = [];
+                    if(getType(this.value) === 'string') {
+                        valueArr = this.value.split(this.strSpliter);
+                    };
+                    if(valueArr[0] === '') {
+                        return valueArr.slice(1);
+                    } else {
+                        return valueArr;
+                    };
+                } else {
+                    return this.value;
+                };
             },
             set: function (e) {
-                this.$emit('input', e);
+                if(this.modelStr) {
+                    this.$emit('input', e.join(this.strSpliter));
+                } else {
+                    this.$emit('input', e);
+                };
             }
         }
     },
@@ -103,7 +124,6 @@ export default {
             if (!!this.url) {
                 that.$get(that.url, function (data) {
                     try {
-                        // that.options =that.multireturn ? that.list2map(data) :data;
                         that.options = that.list2map(data || []);
                     } catch (e) {
                         throw new Error(e)
@@ -111,7 +131,6 @@ export default {
                 })
             } else if(this.data.length > 0) {
                 try {
-                    // that.options =that.multireturn ? that.list2map(data) :data;
                     that.options = that.list2map(this.data || []);
                 } catch (e) {
                     throw new Error(e)
@@ -128,14 +147,40 @@ export default {
             }, {})
         },
         selectChange: function (item) {
-            if(this['2way']) {
+            var that = this;
+            if (this['2way']) {
                 var modelArr = this['2way'].split(',');
-                modelArr.forEach(function(key) {
-                    this.$emit('update:'+key, (this.options[item] || {})[key])
-                }.bind(this));
+                if(this.multiple) {
+                    modelArr.forEach(function (key) {
+                        var updateData = item.reduce(function(arr, i) {
+                            arr.push(that.options[i][key])
+                            return arr;
+                        }, []);
+
+                        if(that.modelStr) {
+                            updateData = updateData.join(that.strSpliter);
+                        };
+
+                        that.$emit('update:' + key, updateData);
+                    }.bind(this));
+                } else {
+                    modelArr.forEach(function (key) {
+                        this.$emit('update:' + key, (this.options[item] || {})[key])
+                    }.bind(this));
+                };
             };
 
-            this.$emit("select", this.options[item] || {});
+            if (this.multiple) {
+                var arr = [];
+                if (Array.isArray(item) && item.length > 0) {
+                    item.forEach(function (selkey) {
+                        arr.push(this.options[selkey])
+                    }.bind(this));
+                    this.$emit("select", arr);
+                }
+            } else {
+                this.$emit("select", this.options[item] || {});
+            };
         }
     },
     watch: {

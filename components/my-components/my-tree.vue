@@ -1,49 +1,29 @@
 <template>
-    <el-tree
-    :default-checked-keys="value"
-    @check-change="checkChange"
-    ref="tree"
-    :show-checkbox="checkbox"
-    :node-key="props.id"
-    :default-expand-all="false"
-    :data="treeData"
-    :props="props"
-    :expand-on-click-node="true"
-    @node-click="nodeClick"
-    :filter-node-method="filterNode"></el-tree>
+    <el-tree 
+        :default-checked-keys="value" 
+        @check-change="checkChange" 
+        ref="tree" 
+        :show-checkbox="checkbox" 
+        :node-key="treeProps.id||'id'" 
+        :default-expand-all="false" 
+        :data="treeData" 
+        :props="treeProps"
+        :expand-on-click-node="true" 
+        @node-click="nodeClick" 
+        :filter-node-method="filterNode"
+    ></el-tree>
 </template>
 
 <script>
 export default {
-    props: {
-        value: {
-            type: Array,
-            default: () => []
-        },
-        disabled: {
-            type: Boolean,
-            default: false
-        },
-        url: {
-            type: String,
-            default: ''
-        },
-        checkbox: {
-            type: Boolean,
-            default: false
-        },
-        props: {
-            type: Object,
-            default: () => ({
-                id: 'id',
-                label: 'text',
-                children: 'children'
-            })
-        }
-    },
+    props: ['value', 'disabled', 'url', 'checkbox', 'top', 'props', 'filtertext', 'data'],
     data: function () {
         return {
             treeData: [],
+            treeProps: {
+                label: 'text',
+                children: 'children'
+            },
         }
     },
     computed: {
@@ -56,17 +36,32 @@ export default {
             }
         }
     },
+    watch: {
+        data: {
+            handler(val) {
+                this.setTreeData(val);
+            }, deep: true
+        }
+    },
     methods: {
         getData: function () { //请求数据
             var that = this;
-            this.url && this.$get(this.url, function (data) {
-                if (inAttr(this.top)) data.splice(0, 0, {
-                    id: "0",
-                    text: "顶级",
-                    value: "0"
+
+            if(this.url) {
+                this.$get(this.url, function (data) {
+                    this.setTreeData(data);
                 });
-                that.treeData = data;
-            })
+            } else {
+                this.setTreeData(this.data);
+            }
+        },
+        setTreeData(data) {
+            if (this.top) data.splice(0, 0, {
+                id: "0",
+                text: "顶级",
+                value: "0"
+            });
+            this.treeData = data;
         },
         nodeClick: function (node) { //节点点击事件
             this.$emit("node-click", node);
@@ -83,6 +78,9 @@ export default {
         }
     },
     mounted: function () {
+        this.treeProps.id = !!this.props ? this.props.id || 'id' : 'id';
+        this.treeProps.label = !!this.props ? this.props.label || 'text' : 'text';
+        this.treeProps.children = !!this.props ? this.props.children || 'children' : 'children';
 
         this.getData();
     }

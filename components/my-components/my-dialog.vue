@@ -1,13 +1,12 @@
 <template>
     <el-dialog
-        v-dialogDrag
         :title="title"
         @opened="opened"
         :width="width"
         :visible.sync="model"
         :append-to-body="true"
         :close-on-click-modal="false"
-        :close = "close"
+        @close = "close"
         :show-close="showclose"
         :before-close="beforeClose"
         >

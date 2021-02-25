@@ -1,9 +1,9 @@
 <template>
-    <span id='cnzz_stat_icon_1275340054' :style="conStype"></span>
+    <span :id='`cnzz_stat_icon_${cid}`' :style="conStype"></span>
 </template>
 
 <script>
-import config from '~/configs/index'
+import config from '../../config/index'
 export default {
     props: {
         hide: {
@@ -20,7 +20,10 @@ export default {
         conStype() {
             return {
                 display: this.hide ? 'none' : ''
-            }
+            };
+        },
+        cid() {
+            return config.cnzz.id;
         }
     },
     watch: {
@@ -35,15 +38,9 @@ export default {
     },
     methods: {
         setCnzz() {
-            var id = config.cnzz;
-            if(!id) {
-                console.warn('未配置cnzz的id，请前往配置');
-                return false;
-            };
-
             var script = document.createElement('script'),
             protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-            script.src = (protocol + 's5.cnzz.com/z_stat.php?id=' + config.cnzz + '&show=pic1');
+            script.src = (protocol + `s5.cnzz.com/z_stat.php?id=${this.cid}&show=pic1`);
             script.language = 'javascript';
             document.body.appendChild(script)
         }

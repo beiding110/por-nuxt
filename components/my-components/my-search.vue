@@ -1,19 +1,20 @@
 <template>
-    <div>
+    <div class="my-search">
         <el-form :inline="true" :model="pgData" size="small">
             <slot></slot>
             <slot name="time">
                 <el-form-item>
-                    <el-date-picker value-format="yyyy-MM-dd" v-model="pgData.time" type="daterange" range-separator="至" :start-placeholder="!!timeStartPlaceholder ? timeStartPlaceholder : '开始日期'" :end-placeholder="!!timeEndPlaceholder ? timeEndPlaceholder : '结束日期'" popper-class="bd__datepiaker"></el-date-picker>
+                    <el-date-picker value-format="yyyy-MM-dd" v-model="pgData.time" type="daterange" range-separator="至" :start-placeholder="timeStartPlaceholder" :end-placeholder="timeEndPlaceholder" popper-class="bd__datepiaker"></el-date-picker>
                 </el-form-item>
             </slot>
             <slot name="title">
                 <el-form-item>
-                    <el-input v-model="pgData.title" :placeholder="!!titlePlaceholder ? titlePlaceholder : '标题'" clearable></el-input>
+                    <el-input v-model="pgData.title" :placeholder="titlePlaceholder" clearable></el-input>
                 </el-form-item>
             </slot>
             <el-form-item>
-                <el-button type="primary" @click="onSearchSubmit">查询</el-button>
+                <el-button type="primary" icon="el-icon-search" @click="onSearchSubmit">查询</el-button>
+                <slot name="btn"></slot>
             </el-form-item>
             <slot name="dr"></slot>
         </el-form>
@@ -22,7 +23,31 @@
 
 <script>
 export default {
-    props: ['value', 'titlePlaceholder', 'timeStartPlaceholder', 'timeEndPlaceholder', 'alive'],
+    props: {
+        value: {
+            type: Object,
+            default: () => ({
+                time: [],
+                title: '',
+            })
+        },
+        titlePlaceholder: {
+            type: String,
+            default: '标题'
+        },
+        timeStartPlaceholder: {
+            type: String,
+            default: '添加时间早至'
+        },
+        timeEndPlaceholder: {
+            type: String,
+            default: '添加时间晚至'
+        },
+        alive: {
+            type: Boolean,
+            default: true
+        }
+    },
     data () {
         return {
             pgData: {
@@ -41,7 +66,7 @@ export default {
     },
     methods: {
         onSearchSubmit: function () {
-            setSession('search[' + window.location.pathname + ']['+this._uid+']', this.value);
+            setSession('search[' + window.location.hash + ']', this.value);
             this.$emit('search');
         },
         valReCalc: function (val) {
@@ -68,8 +93,8 @@ export default {
         }
     },
     created: function () {
-        if (this.alive !== false || this.alive !== 'false') {
-            var searchSession = getSession('search[' + window.location.pathname + ']['+this._uid+']');
+        if (this.alive) {
+            var searchSession = getSession('search[' + window.location.hash + ']');
             if (!!searchSession) {
                 searchSession.time = (!!searchSession.starttime && !!searchSession.endtime) ? [searchSession.starttime, searchSession.endtime] : [];
                 this.pgData = searchSession;
@@ -85,8 +110,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-    .my__form{padding: 2em 2em 0;}
-    .my__form .el-input__inner, .my__form input{background-color: rgba(0,0,0,0);}
-    .my__form .el-button--primary{background: #FFCC55; border-color:#FFCC55;}
-    .my__form .el-button--primary:focus, .my__form .el-button--primary:hover{background:#FFD779; border-color: #FFD779}
+
 </style>
