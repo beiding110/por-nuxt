@@ -1,6 +1,6 @@
 <template>
     <span class="my__checkbox">
-        <span v-if="!inAttr(readonly)">
+        <span v-if="!readonly">
             <el-checkbox-group v-model="model" style="display:inline-block;">
             	<el-checkbox v-for="item in list" 
                     :key="item[props.value]" 
@@ -9,7 +9,7 @@
                     {{item[props.label]}}
                 </el-checkbox>
             </el-checkbox-group>
-            <el-checkbox v-model="otherController" style="margin-left:1em;" v-if="inAttr(other)" disabled>
+            <el-checkbox v-model="otherController" style="margin-left:1em;" v-if="other" disabled>
                 <el-input v-model="input" placeholder="其它" size="mini"></el-input>
             </el-checkbox>
         </span>

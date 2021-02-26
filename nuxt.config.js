@@ -1,4 +1,5 @@
 import config from './configs/index.js'
+import path from 'path'
 
 var initSentry;
 
@@ -67,6 +68,19 @@ var baseConfig = {
 
                 initSentry && initSentry(config);
             };
+
+            const aliasArr = {
+                '@css': path.resolve('./css'),
+                '@config': path.resolve('./configs'),
+                '@js': path.resolve('./js'),
+                '@layout': path.resolve('./layouts'),
+                '@mixins': path.resolve('./mixins'),
+                '@plugins': path.resolve('./plugins'),
+            };
+
+            Object.keys(aliasArr).forEach(key => {
+                config.resolve.alias[key] = aliasArr[key];
+            });
         },
         vendor: ['axios']
     }

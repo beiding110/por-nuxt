@@ -15,6 +15,8 @@
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
+import appNode from '@js/app-node'
+
 export default {
     props: {
         value: {
@@ -87,7 +89,7 @@ export default {
                 if (!that.action) {
                     throw new Error('请绑定action属性（数据api请求地址）');
                 } else {
-                    page = !!getHash('page') ? getHash('page') : (page || 1);
+                    page = !!appNode.getHash('page') ? appNode.getHash('page') : (page || 1);
 
                     var searchData = {};
                     var searchData = this.search || {};
@@ -95,7 +97,7 @@ export default {
                     this.currentPage = page;
                     searchData.pageindex = page;
 
-                    mixin(this.defaultSearch, searchData);
+                    appNode.mixin(this.defaultSearch, searchData);
 
                     !!this.beforeQuery && this.beforeQuery(searchData);
                     this.$emit('update:loading', true);
@@ -135,7 +137,7 @@ export default {
         }
     },
     mounted: function() {
-        !inAttr(this.lazy) && this.queryData(1)
+        !this.lazy && this.queryData(1)
     }
 }
 </script>

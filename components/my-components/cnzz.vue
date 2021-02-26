@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import config from '../../config/index'
+import config from '@config/index'
 export default {
     props: {
         hide: {
