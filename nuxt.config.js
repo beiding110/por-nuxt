@@ -78,6 +78,7 @@ var baseConfig = {
                 '@css': path.resolve('./assets/css'),
                 '@config': path.resolve('./configs'),
                 '@js': path.resolve('./assets/js'),
+                '@images': path.resolve('./assets/images'),
                 '@layout': path.resolve('./layouts'),
                 '@mixins': path.resolve('./mixins'),
                 '@plugins': path.resolve('./plugins'),
