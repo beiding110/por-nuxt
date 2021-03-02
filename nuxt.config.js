@@ -43,7 +43,11 @@ var baseConfig = {
             { rel: 'icon', type: 'image/x-icon', href: config.head.icon }
         ]
     },
-    css: ['~/assets/css/main.css'],
+    css: [
+        '~/assets/css/main.css',
+        '~/assets/css/iconfont.css',
+        '~/assets/css/zh-common.css',
+    ],
     /*
     ** Customize the progress bar color
     */
@@ -71,7 +75,7 @@ var baseConfig = {
             };
 
             const aliasArr = {
-                '@css': path.resolve('./css'),
+                '@css': path.resolve('./assets/css'),
                 '@config': path.resolve('./configs'),
                 '@js': path.resolve('./js'),
                 '@layout': path.resolve('./layouts'),
@@ -88,7 +92,7 @@ var baseConfig = {
 };
 
 if(config.plugins.element) {
-    baseConfig.css.push('element-ui/lib/theme-chalk/index.css');
+    baseConfig.css.push('~/assets/css/element-customize.scss');
     baseConfig.plugins.push('~/plugins/element-ui');
     baseConfig.build.vendor.push('element-ui');
 };
