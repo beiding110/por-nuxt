@@ -4,7 +4,7 @@ import RavenVue from 'raven-js/plugins/vue';
 import config from '~/configs';
 
 export default function({ app, isDev }) {
-    if(!isDev){
+    if(!isDev && config.plugins.sentry){
         Raven
         .config(config.plugins.sentry.dsn)
         .addPlugin(RavenVue, Vue)

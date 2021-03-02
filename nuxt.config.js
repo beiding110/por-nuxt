@@ -17,7 +17,8 @@ if(config.plugins.sentry) {
 
 var baseConfig = {
     plugins: [
-        '~/plugins/axios'
+        '~/plugins/axios',
+        '~/plugins/vue-meta',
     ],
     modules: [
         '@nuxtjs/axios',
