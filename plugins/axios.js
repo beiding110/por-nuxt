@@ -1,5 +1,5 @@
 import qs from 'qs';
-import _pt from '~/assets/js/porcupine-tools';
+import _pt from '~/assets/js/app-node';
 import axiosSupply from './axios.supply';
 /**
  * 获取setcookie中有效值

@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import _pt from '~/assets/js/porcupine-tools';
+import _pt from '~/assets/js/app-node';
 
 export default {
     data: () => {

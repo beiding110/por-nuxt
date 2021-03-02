@@ -1,6 +1,6 @@
 import createPersistedState from 'vuex-persistedstate';
 import * as Cookies from "js-cookie";
-import _pt from '~/assets/js/porcupine-tools';
+import _pt from '~/assets/js/app-node';
 import config from '~/configs';
 
 const type = config.plugins.vuexStorage;

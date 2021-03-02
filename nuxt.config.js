@@ -77,7 +77,7 @@ var baseConfig = {
             const aliasArr = {
                 '@css': path.resolve('./assets/css'),
                 '@config': path.resolve('./configs'),
-                '@js': path.resolve('./js'),
+                '@js': path.resolve('./assets/js'),
                 '@layout': path.resolve('./layouts'),
                 '@mixins': path.resolve('./mixins'),
                 '@plugins': path.resolve('./plugins'),
