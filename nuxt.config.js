@@ -19,11 +19,12 @@ var baseConfig = {
     plugins: [
         '~/plugins/axios',
         '~/plugins/vue-meta',
+        '~/plugins/appjs',
     ],
     modules: [
         '@nuxtjs/axios',
         '@nuxtjs/proxy',
-        'cookie-universal-nuxt'
+        'cookie-universal-nuxt',
     ],
     axios: {
         proxy: true, // 表示开启代理
@@ -77,6 +78,7 @@ var baseConfig = {
             const aliasArr = {
                 '@css': path.resolve('./assets/css'),
                 '@config': path.resolve('./configs'),
+                '@components': path.resolve('./components'),
                 '@js': path.resolve('./assets/js'),
                 '@images': path.resolve('./assets/images'),
                 '@layout': path.resolve('./layouts'),

@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import appNode from '@js/app-node'
+
 export default {
     props: {
         labelWidth: {
@@ -115,7 +117,7 @@ export default {
             var that = this,
                 ajaxRes;
 
-            new Chain().link(function (obj, next) {
+            new appNode.Chain().link(function (obj, next) {
                 if (obj.submitLock) {
                     ShowMsg.call(obj, '提交过快，请稍后重试');
                     return;
