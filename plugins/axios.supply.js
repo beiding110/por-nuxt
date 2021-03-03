@@ -58,8 +58,8 @@ var ajaxKeyMap = function(type) {
     ]
 }
 
-var mixin = (axios) => {
-    Vue.prototype.$get = function(a, b, c, d) {
+var mixin = (axios, app) => {
+    function $get(a, b, c, d) {
         var settings = argsCheck(a, b, c, d);
 
         axios.get(settings.url, {
@@ -69,7 +69,7 @@ var mixin = (axios) => {
         });
     };
 
-    Vue.prototype.$post = function(a, b, c, d) {
+    function $post(a, b, c, d) {
         var settings = argsCheck(a, b, c, d);
 
         let data = settings.data;
@@ -84,7 +84,7 @@ var mixin = (axios) => {
         });
     };
 
-    Vue.prototype.$ajax = function(settings) {
+    function $ajax(settings) {
         var keyMap = ajaxKeyMap(settings.type),
         axiosSetting = {};
 
@@ -103,6 +103,14 @@ var mixin = (axios) => {
             axiosSetting.complete && axiosSetting.complete.call(this);
         });
     };
+
+    Vue.prototype.$get = $get;
+    Vue.prototype.$post = $post;
+    Vue.prototype.$ajax = $ajax;
+
+    app.$get = $get;
+    app.$post = $post;
+    app.$ajax = $ajax;
 };
 
 var resInterceptors = (data, config, headers) => {

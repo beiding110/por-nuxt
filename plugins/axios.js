@@ -24,14 +24,14 @@ function getShiro(obj) {
     return cookieAdd;
 };
 
-export default function ({store, redirect, app: { $axios, $cookies, $message }})  {
-    axiosSupply.mixin($axios);
+export default function ({ app })  {
+    axiosSupply.mixin(app.$axios, app);
 
-    $axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-    $axios.defaults.withCredentials = true;
+    app.$axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+    app.$axios.defaults.withCredentials = true;
 
     //request拦截器
-    $axios.interceptors.request.use(config => {
+    app.$axios.interceptors.request.use(config => {
         return new Promise((resolve) => {
             resolve(config);
         });
@@ -40,7 +40,7 @@ export default function ({store, redirect, app: { $axios, $cookies, $message }})
         return Promise.reject(error);
     });
 	// response拦截器
-	$axios.interceptors.response.use(({data, config, headers}) => {
+	app.$axios.interceptors.response.use(({data, config, headers}) => {
         return axiosSupply.resInterceptors(data, config, headers);
 	});
 }
