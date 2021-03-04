@@ -21,4 +21,12 @@ $ npm start
 $ npm run generate
 ```
 
+## pm2部署
+
+``` bash
+
+pm2 start --name pro-name start.js
+
+```
+
 For detailed explanation on how things work, checkout the [Nuxt.js docs](https://github.com/nuxt/nuxt.js).
