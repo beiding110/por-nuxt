@@ -25,19 +25,23 @@ function argsCheck(a, b, c, d) {
         fztype: false
     };
 
-    if (arguments.length == 2 && typeof (b) == 'function') {
+    var args = [];
+    args.push.apply(args, arguments);
+    args = args.filter(item => item);
+
+    if (args.length == 2 && typeof b == 'function') {
         obj.callback = b;
-    } else if (arguments.length == 2 && typeof (b) != 'function') {
+    } else if (args.length == 2 && typeof b != 'function') {
         obj.data = b;
-    } else if (arguments.length == 3) {
-        if (typeof (arguments[arguments.length - 1]) == 'boolean') {
+    } else if (args.length == 3) {
+        if (typeof args[args.length - 1] == 'boolean') {
             obj.data = b;
             obj.fztype = c;
         } else {
             obj.data = b;
             obj.callback = c;
         }
-    } else if (arguments.length == 4) {
+    } else if (args.length == 4) {
         obj.data = b;
         obj.callback = c;
         obj.fztype = d;
