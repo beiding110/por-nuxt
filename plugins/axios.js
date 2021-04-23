@@ -33,14 +33,16 @@ export default function ({ app })  {
     //request拦截器
     app.$axios.interceptors.request.use(config => {
         return new Promise((resolve) => {
+            config.url += `?ts=${new Date().getTime()}`;
+
             resolve(config);
         });
-	}, function (error) {
+    }, function (error) {
         // 对请求错误做些什么
         return Promise.reject(error);
     });
-	// response拦截器
-	app.$axios.interceptors.response.use(({data, config, headers}) => {
+    // response拦截器
+    app.$axios.interceptors.response.use(({data, config, headers}) => {
         return axiosSupply.resInterceptors(data, config, headers);
-	});
+    });
 }
