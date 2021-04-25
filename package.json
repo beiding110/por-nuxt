@@ -28,7 +28,6 @@
         "nuxt": "^2.0.0",
         "raven-js": "^3.27.2",
         "sass-loader": "^8.0.2",
-        "vue-meta": "^2.4.0",
         "vuex-persistedstate": "^3.0.0"
     },
     "devDependencies": {

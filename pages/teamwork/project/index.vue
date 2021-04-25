@@ -73,6 +73,9 @@ function getUserList() {
 }
 
 export default {
+    head: {
+        title: '项目列表',
+    },
     async asyncData(context) {
         let [proList, userList] = await Promise.all([
             getProList.call(context).then(res => res.rows),
