@@ -2,7 +2,7 @@
     <iframe
         ref="frame"
         class="pdf-container"
-        src="./static/plugin/pdfjs/index.html?file="
+        src="/plugin/pdfjs/index.html?file="
         :data-src="innerSrc"
     ></iframe>
 </template>
@@ -46,7 +46,7 @@ export default {
             var pdfWin = this.$refs.frame.contentWindow;
 
             if(this.innerSrc !== this.src) {
-                pdfWin.location.replace(`./static/plugin/pdfjs/index.html?file=${this.src}${this.ts}`);
+                pdfWin.location.replace(`/plugin/pdfjs/index.html?file=${this.src}${this.ts}`);
             }
         },
         reload() {
