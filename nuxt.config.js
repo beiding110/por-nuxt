@@ -91,7 +91,15 @@ var baseConfig = {
             });
         },
         vendor: ['axios']
-    }
+    },
+    router: {
+        extendRoutes(routes) {
+            routes.forEach(route => {
+                const alias = route.path.length > 1 ? `${route.path}/index.html` : '/index.html';
+                route.alias = alias;
+            });
+        },
+    },
 };
 
 if(config.plugins.element) {
