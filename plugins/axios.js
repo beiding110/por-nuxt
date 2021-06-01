@@ -33,7 +33,7 @@ export default function ({ app })  {
     //request拦截器
     app.$axios.interceptors.request.use(config => {
         return new Promise((resolve) => {
-            config.url += `?ts=${new Date().getTime()}`;
+            config.url += (/\?/.test(config.url) ? `&ts=${new Date().getTime()}` : `?ts=${new Date().getTime()}`);
 
             resolve(config);
         });
