@@ -139,29 +139,29 @@ var resInterceptors = (data, config, headers) => {
                     alert('valerror:' + data.msg);
                 };
             });
-            return data;
+            return false;
         },
         'login-index': () => {
             isNode(() => {
                 console.warn(consoleString);
             }, () => {
                 isNode(() => {
-                    redirect('/');
+                    redirect('/login');
                 }, () => {
                     if(configs.plugins.element) {
                         MessageBox({
                             message: data.msg,
                             type: 'error',
                             callback: () => {
-                                redirect('/');
+                                window.location.assign('/login');
                             }
                         });
                     } else {
-                        redirect('/');
+                        window.location.assign('/login');
                     };
                 });
             });
-            return data;
+            return false;
         },
         error: () => {
             isNode(() => {
@@ -177,11 +177,17 @@ var resInterceptors = (data, config, headers) => {
                 };
                 throw new Error(JSON.stringify(consoleString));
             });
-            return data;
+            return false;
         }
     };
 
-    return [switchObj[data.code](), data];
+    var res = switchObj[data.code]();
+
+    if (res !== false) {
+        return [res, data];
+    } else {
+        return false;
+    }
 }
 
 export default {
