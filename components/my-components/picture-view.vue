@@ -2,7 +2,7 @@
     <iframe
     ref="frame"
     class="picture-container"
-    :src="'/plugin/picture-view/index.html?src=' + src"></iframe>
+    :src="'./static/plugin/picture-view/index.html?src=' + src"></iframe>
 </template>
 
 <script>

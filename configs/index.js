@@ -2,7 +2,8 @@ export default {
     head: {
         title: 'Nuxt',
         meta: {
-            description: 'Nuxt.js project'
+            description: 'Nuxt.js project',
+            keywords: 'Nuxt,porcupine',
         },
         icon: '/favicon.ico'
     },
@@ -35,5 +36,4 @@ export default {
             changeOrigin:true,
         }
     },
-    cnzz: ''
 }

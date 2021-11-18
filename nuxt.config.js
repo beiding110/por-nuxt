@@ -38,11 +38,12 @@ var baseConfig = {
             { charset: 'utf-8' },
             { name: 'viewport', content: 'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no' },
             { httpEquiv: 'X-UA-Compatible', content: 'IE=edge,chrome=1'},
-            { hid: 'description', name: 'description', content: config.head.meta.description }
+            { hid: 'description', name: 'description', content: config.head.meta.description },
+            { hid: 'keywords', name: 'keywords', content: config.head.meta.keywords },
         ],
         link: [
             { rel: 'icon', type: 'image/x-icon', href: config.head.icon }
-        ]
+        ],
     },
     css: [
         '~/assets/css/main.css',
@@ -84,6 +85,7 @@ var baseConfig = {
                 '@layout': path.resolve('./layouts'),
                 '@mixins': path.resolve('./mixins'),
                 '@plugins': path.resolve('./plugins'),
+                '@store': path.resolve('./store'),
             };
 
             Object.keys(aliasArr).forEach(key => {

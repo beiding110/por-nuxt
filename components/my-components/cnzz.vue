@@ -19,11 +19,11 @@ export default {
     computed: {
         conStype() {
             return {
-                display: this.hide ? 'none' : ''
+                display: this.hide ? 'none' : 'inline'
             };
         },
         cid() {
-            return config.cnzz.id;
+            return config.plugins.cnzz.id;
         }
     },
     watch: {
@@ -40,7 +40,7 @@ export default {
         setCnzz() {
             var script = document.createElement('script'),
             protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-            script.src = (protocol + `s5.cnzz.com/z_stat.php?id=${this.cid}&show=pic1`);
+            script.src = (protocol + `s9.cnzz.com/z_stat.php?id=${this.cid}&show=pic1`);
             script.language = 'javascript';
             document.body.appendChild(script)
         }

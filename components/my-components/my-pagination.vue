@@ -1,12 +1,18 @@
 <template>
-    <el-pagination
-        :layout="layout"
-        :total="total"
-        :page-size="!!search ? search.pagesize || defaultSearch.pagesize : defaultSearch.pagesize"
-        :current-page.sync="currentPage"
-        :background="background"
-        @current-change="handleCurrentChange"
-    ></el-pagination>
+    <div 
+    v-if="domShow"
+    class="my-pagination-con"
+    >
+        <el-pagination
+            class="my-pagination"
+            :layout="layout"
+            :total="total"
+            :page-size="!!search ? search.pagesize || defaultSearch.pagesize : defaultSearch.pagesize"
+            :current-page.sync="currentPage"
+            :background="background"
+            @current-change="handleCurrentChange"
+        ></el-pagination>
+    </div>
 </template>
 
 <script>
@@ -59,11 +65,11 @@ export default {
         },
         layout: {
             type: String,
-            default: 'prev, pager, next'
+            default: 'total, prev, pager, next'
         },
         background: {
             type: Boolean,
-            default: false
+            default: true
         },
     },
     data () {
@@ -71,11 +77,12 @@ export default {
             total: 1,
             currentPage: 1,
             defaultSearch: {
-                sortname: 'addtime',
+                sortname: '',
                 sortorder: 'desc',
                 pagesize: 20
-            }
-        }
+            },
+            domShow: false,
+        };
     },
     computed: {
         pageData: {
@@ -124,6 +131,10 @@ export default {
                                 that.total = data.total;
                             });
 
+                            if (data.total > searchData.pagesize) {
+                                this.domShow = true;
+                            }
+
                             this.$emit('update:extra', data.extra);
                         },
                         complete() {
@@ -149,6 +160,18 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style>
+<style scoped lang="scss">
+.my-pagination-con{
+    text-align: center;
+}
+
+.my-pagination {
+    /deep/ {
+        .el-pagination.is-background .btn-prev, .el-pagination.is-background .btn-next, .el-pagination.is-background .el-pager li{
+            border: 1px solid #e3e4e9;
+            background: white;
+        }
+    }
+}
 
 </style>

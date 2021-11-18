@@ -44,15 +44,12 @@ export default {
     computed: {
         spanNumber() {
             var length = this.data.length;
-
             if (length < 2) {
                 return 24;
             }
-
             if ([2, 4].includes(length)) {
                 return 12;
             }
-
             return 8;
         },
         imgItemStyle() {
@@ -65,7 +62,6 @@ export default {
         previewList(index = 0) {
             var before = this.data.slice(0, index),
                 after = this.data.slice(index);
-
             return [
                 ...before,
                 ...after,
@@ -76,20 +72,17 @@ export default {
                 firstRef,
                 firstEl,
                 firstWdith;
-
             if (!target) {
                 return 0;
             }
-
             firstRef = target[0] || {};
             firstEl = firstRef.$el || {};
             firstWdith = firstEl.clientWidth;
-
             return firstWdith - 10;
         },
     },
     mounted() {
-        
+        this.getTargetWidth();
     }
 };
 </script>
@@ -97,7 +90,6 @@ export default {
 <style lang="scss" scoped>
     .col-item {
         margin-bottom: 6px;
-
         .img-item{
             width: 100%;
         }

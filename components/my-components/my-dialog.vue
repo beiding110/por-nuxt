@@ -1,17 +1,37 @@
 <template>
     <el-dialog
-        :title="title"
-        @opened="opened"
-        :width="width"
-        :visible.sync="model"
-        :append-to-body="true"
-        :close-on-click-modal="false"
-        @close = "close"
-        :show-close="showclose"
-        :before-close="beforeClose"
-        >
+    class="my-dialog"
+    :title="title"
+    @opened="opened"
+    :width="width"
+    :visible.sync="model"
+    :append-to-body="true"
+    :close-on-click-modal="false"
+    @close = "close"
+    :show-close="showclose"
+    :before-close="beforeClose"
+    >
 
-        <slot></slot>
+        <div 
+        v-if="$slots.head"
+        class="head"
+        >
+            <slot name="head"></slot>
+        </div>
+
+        <div class="body">
+            <slot></slot>
+        </div>
+
+        <div 
+        v-if="$slots.foot"
+        class="foot" 
+        >
+            <slot 
+                name="foot"
+                :close="close"
+            ></slot>
+        </div>
 
     </el-dialog>
 </template>
@@ -33,7 +53,7 @@ export default {
         },
         showclose: {
             type: Boolean,
-            default: true
+            default: false
         },
         hasBeforeClose:{
             type:[Function, Boolean],
@@ -71,12 +91,38 @@ export default {
         },
     },
     mounted: function() {
-
+        
     }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+.my-dialog{
+    /deep/ {
+        .el-dialog__header{
+            padding: 0;
 
+            .el-dialog__headerbtn{
+                z-index: 10;
+            }
+        }
+
+        .el-dialog__body{
+            padding: 35px 40px;
+        }
+    }
+
+    .head{
+        font-size: 16px;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 16px;
+        line-height: 1em;
+    }
+
+    .foot{
+        text-align: center;
+    }
+}
 </style>

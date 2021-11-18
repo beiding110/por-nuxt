@@ -24,7 +24,9 @@ function getShiro(obj) {
     return cookieAdd;
 };
 
-export default function ({ app })  {
+export default function (context)  {
+    var app = context.app;
+
     axiosSupply.mixin(app.$axios, app);
 
     app.$axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
@@ -41,8 +43,9 @@ export default function ({ app })  {
         // 对请求错误做些什么
         return Promise.reject(error);
     });
+
 	// response拦截器
 	app.$axios.interceptors.response.use(({data, config, headers}) => {
-        return axiosSupply.resInterceptors(data, config, headers);
+        return axiosSupply.resInterceptors(data, config, headers, context);
 	});
 }

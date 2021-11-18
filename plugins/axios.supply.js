@@ -56,6 +56,7 @@ var ajaxKeyMap = function(type) {
         ['url', 'url'],
         ['data', (type === 'post' ? 'data' : 'params')],
         ['callback', 'callback'],
+        ['error', 'error'],
         ['complete', 'complete'],
         ['fztype', 'fztype'],
         ['headers', 'headers']
@@ -103,7 +104,9 @@ var mixin = (axios, app) => {
 
         axios(axiosSetting).then(([data, res]) => {
             axiosSetting.callback && axiosSetting.callback.call(this, data, res);
-        }).catch(e => {}).finally(() => {
+        }).catch(e => {
+            axiosSetting.error && axiosSetting.error.call(this, data, res);
+        }).finally(() => {
             axiosSetting.complete && axiosSetting.complete.call(this);
         });
     };
@@ -117,7 +120,9 @@ var mixin = (axios, app) => {
     app.$ajax = $ajax;
 };
 
-var resInterceptors = (data, config, headers) => {
+var resInterceptors = (data, config, header, context) => {
+    var redirect = context.redirect;
+
     const consoleString = JSON.stringify({
         request: config,
         response: data
@@ -127,6 +132,8 @@ var resInterceptors = (data, config, headers) => {
         v: () => data.tdata,
         pglist: () => data,
         valerror: () => {
+            config.error && config.error();
+
             isNode(() => {
                 console.error(consoleString);
             }, () => {
@@ -142,28 +149,61 @@ var resInterceptors = (data, config, headers) => {
             return false;
         },
         'login-index': () => {
+            config.error && config.error();
+
             isNode(() => {
                 console.warn(consoleString);
+                redirect('/login');
             }, () => {
-                isNode(() => {
-                    redirect('/login');
-                }, () => {
-                    if(configs.plugins.element) {
-                        MessageBox({
-                            message: data.msg,
-                            type: 'error',
-                            callback: () => {
-                                window.location.assign('/login');
-                            }
-                        });
-                    } else {
-                        window.location.assign('/login');
-                    };
+                if(configs.plugins.element) {
+                    MessageBox({
+                        message: data.msg,
+                        type: 'error',
+                        callback: () => {
+                            window.location.assign('/login');
+                        }
+                    });
+                } else {
+                    window.location.assign('/login');
+                };
+            });
+
+            return false;
+        },
+        'redirect': () => {
+            config.error && config.error();
+
+            isNode(() => {
+                console.warn(`即将redirect：${consoleString}`);
+
+                var redirectfrom = context.route.path,
+                    redirectto = data.url;
+
+                redirect({
+                    path: redirectto,
+                    query: {
+                        ...context.route.query,
+                        redirectfrom
+                    }
                 });
+            }, () => {
+                if(configs.plugins.element) {
+                    MessageBox({
+                        message: data.msg,
+                        type: 'error',
+                        callback: () => {
+                            window.location.assign(data.url);
+                        }
+                    });
+                } else {
+                    window.location.assign(data.url);
+                };
             });
             return false;
         },
         error: () => {
+            config.error && config.error();
+            
             isNode(() => {
                 console.error(consoleString);
             }, () => {
@@ -181,7 +221,14 @@ var resInterceptors = (data, config, headers) => {
         }
     };
 
-    var res = switchObj[data.code]();
+    var fun = switchObj[data.code],
+        res = false;
+
+    if (fun) {
+        res = fun();
+    } else {
+        console.error(data);
+    }
 
     if (res !== false) {
         return [res, data];

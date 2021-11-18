@@ -117,85 +117,85 @@ export default {
             var that = this,
                 ajaxRes;
 
-            new appNode.Chain().link(function (obj, next) {
-                if (obj.submitLock) {
-                    ShowMsg.call(obj, '提交过快，请稍后重试');
+            new appNode.Chain().link(function (next) {
+                if (that.submitLock) {
+                    ShowMsg.call(that, '提交过快，请稍后重试');
                     return;
                 };
                 next();
-            }).link(function (obj, next) {
-                if (obj.submitLoadingController) {
+            }).link(function (next) {
+                if (that.submitLoadingController) {
                     return;
                 };
                 next();
-            }).link(function (obj, next) {
-                obj.submitLoadingController = true;
-                // obj.shadebox.show();
+            }).link(function (next) {
+                that.submitLoadingController = true;
+                // that.shadebox.show();
 
-                obj.$nextTick(function () {
+                that.$nextTick(function () {
                     next()
                 });
-            }).link(function (obj, next) {
-                if(obj.beforeSend) {
-                    obj.beforeSend(function() {
-                        obj.$nextTick(function () {
+            }).link(function (next) {
+                if(that.beforeSend) {
+                    that.beforeSend(function() {
+                        that.$nextTick(function () {
                             next();
                         })
                     }, function() {
-                        obj.submitEnd();
+                        that.submitEnd();
                     });
                 } else {
                     next();
                 }
-            }).link(function (obj, next) {
-                obj.$refs['form'].validate(function (valid) {
+            }).link(function (next) {
+                that.$refs['form'].validate(function (valid) {
                     if (valid) {
 
-                        Object.keys(obj.form).forEach(function (key) {
-                            obj.form[key] = typeof (obj.form[key]) === 'string' ?
-                            obj.form[key].replace(/^\s+|\s+$/g, "") :
-                            obj.form[key];
+                        Object.keys(that.form).forEach(function (key) {
+                            that.form[key] = typeof (that.form[key]) === 'string' ?
+                            that.form[key].replace(/^\s+|\s+$/g, "") :
+                            that.form[key];
                         });
 
-                        if (!!obj.submitUrl) {
-                            obj.$ajax({
+                        if (!!that.submitUrl) {
+                            that.$ajax({
                                 type: 'post',
-                                url: obj.submitUrl,
-                                data: obj.form,
+                                url: that.submitUrl,
+                                data: that.form,
                                 callback: function (data, res) {
                                     ajaxRes = res;
-                                    obj.$emit('submit');
-                                    ShowMsg.call(obj, res.msg || '保存成功', 'success');
+                                    that.$emit('submit');
+                                    ShowMsg.call(that, res.msg || '保存成功', 'success');
 
-                                    obj.close();
+                                    that.close();
 
                                     !!callback && callback();
                                 },
-                                fztype: obj.sendStr,
+                                fztype: that.sendStr,
                                 complete: function () {
                                     next();
                                 }
                             });
                         } else {
-                            obj.$emit('submit');
+                            that.$emit('submit');
                             next();
                         };
                     } else {
-                        obj.submitEnd();
+                        that.submitEnd();
                         return false;
                     };
                 });
-            }).link(function (obj, next) {
-                !!obj.afterSend && obj.afterSend(ajaxRes);
-                obj.$nextTick(function () {
+            }).link(function (next) {
+                !!that.afterSend && that.afterSend(ajaxRes);
+                that.$nextTick(function () {
                     next();
                 })
-            }).link(function (obj, next) {
-                obj.submitEnd();
-                obj.$nextTick(function () {
+            }).link(function (next) {
+                that.submitEnd();
+                that.$nextTick(function () {
                     next();
                 });
-            }).run(this);
+            }).run();
         },
         onCancle: function () {
             this.$emit('cancle');

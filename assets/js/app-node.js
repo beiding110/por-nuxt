@@ -36,16 +36,15 @@ Chain.prototype = {
     * @param  {Object} obj 责任链中的通用参数
     * @return {null}     [description]
     */
-    run: function (obj) {
+    run: function () {
         var that = this,
-        index = 0,
-        obj = obj;
+            index = 0;
 
         var loop = function () {
             var this_node = that.chain_arr[index];
             index++;
             if (!!this_node) {
-                return this_node(obj, loop)
+                return this_node(loop)
             }
         };
 
@@ -624,6 +623,44 @@ const isMobile = function() {
     }
 }
 
+/**
+ * 
+ * @param {String} url 请求地址
+ * @param {Object} data 参数
+ * @returns 
+ */
+function ssrReq(url, data) {
+    return new Promise(resolve => {
+        this.$axios.get(url, {
+            params: data,
+        }).then(([data, res]) => {
+            resolve(data)
+        });
+    });
+};
+
+/**
+ * 节流函数构造器
+ * @param {Function} func 要执行的函数
+ * @param {Number} delay 毫秒数
+ * @returns 节流后的函数
+ */
+function throttle(func, delay) {
+    var timer = null;
+             
+    return function() {
+        var context = this;
+        var args = arguments;
+        
+        if (!timer) {
+            timer = setTimeout(function() {
+                func.apply(context, args);
+                timer = null;
+            }, delay);
+        }
+    }
+}
+
 export default {
     Chain,
     clone,
@@ -647,4 +684,6 @@ export default {
     win,
     getType,
     isMobile,
+    ssrReq,
+    throttle,
 }
