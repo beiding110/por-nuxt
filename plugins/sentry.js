@@ -1,13 +1,23 @@
 import Vue from 'vue';
-import Raven from 'raven-js';
-import RavenVue from 'raven-js/plugins/vue';
 import config from '~/configs';
+
+import * as Sentry from "@sentry/vue";
+import { BrowserTracing } from "@sentry/tracing";
+
 
 export default function({ app, isDev }) {
     if(!isDev && config.plugins.sentry){
-        Raven
-        .config(config.plugins.sentry.dsn)
-        .addPlugin(RavenVue, Vue)
-        .install();
+        Sentry.init({
+            Vue,
+            dsn: config.plugins.sentry.dsn,
+            integrations: [
+                new BrowserTracing(),
+            ],
+            // Set tracesSampleRate to 1.0 to capture 100%
+            // of transactions for performance monitoring.
+            // We recommend adjusting this value in production
+            tracesSampleRate: 1.0,
+            logErrors: true,
+        });
     }
 }

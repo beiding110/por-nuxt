@@ -13,7 +13,7 @@ export default {
         vuexStorage: false,
         jquery: true,
         sentry: {
-            dsn: 'https://4efc6c77e7e64921966612b3e3cc4355@sentry.io/5171325',
+            dsn: 'https://4efc6c77e7e64921966612b3e3cc4355@o367512.ingest.sentry.io/5171325',
             map: {
                 // 要上传的文件夹
                 include: './dist',
