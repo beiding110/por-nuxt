@@ -99,7 +99,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .my-dialog{
-    /deep/ {
+    ::v-deep {
         .el-dialog__header{
             padding: 0;
 

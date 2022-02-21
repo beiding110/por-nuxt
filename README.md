@@ -2,11 +2,11 @@
 
 > Nuxt.js project
 
-nuxt通用模板，集成了element-ui，jquery，axios，sentry
+nuxt通用模板，集成了element-ui、jquery、axios、sentry、~~node-sass~~、sass(dart-sass)
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 $ npm install # Or yarn install
 
@@ -35,20 +35,9 @@ Error: Unable to download sentry-cli binary from https://downloads.sentry-cdn.co
 npm config set sentrycli_cdnurl https://npm.taobao.org/mirrors/sentry-cli/
 ```
 
-```
-错误类型：
-无法安装node-sass
-
-错误内容：
--
-
-解决方法：
-npm config set sass_binary_site=https://npm.taobao.org/mirrors/node-sass/
-```
-
 ## pm2部署
 
-``` bash
+```bash
 
 pm2 start --name pro-name start.js
 

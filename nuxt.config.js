@@ -70,6 +70,7 @@ var baseConfig = {
                     exclude: /(node_modules)/
                 });
             };
+
             if(isClient && !isDev) {
                 config.devtool = 'source-map';
 
@@ -105,26 +106,35 @@ var baseConfig = {
 };
 
 if(config.plugins.element) {
+    // 使用element
     baseConfig.css.push('~/assets/css/element-customize.scss');
     baseConfig.plugins.push('~/plugins/element-ui');
     baseConfig.build.vendor.push('element-ui');
-};
+}
+
 if(config.plugins.element && config.plugins.myComs) {
+    // 使用element二次封装的组件库
     baseConfig.plugins.push('~/plugins/my-components');
-};
+}
+
 if(config.plugins.vuexStorage) {
+    // 使用vuexStorage
     baseConfig.plugins.push('~/plugins/vuex-storage');
-};
+}
+
 if(config.plugins.jquery) {
+    // 使用jquery
     const webpack = require('webpack');
     baseConfig.build.plugins = baseConfig.build.plugins || [];
     baseConfig.build.plugins.push(new webpack.ProvidePlugin({
         '$' : 'jquery'
     }));
-};
+}
+
 if(config.plugins.sentry) {
+    // 使用sentry
     baseConfig.plugins.push('~/plugins/sentry');
-};
+}
 
 baseConfig.proxy = config.proxy;
 

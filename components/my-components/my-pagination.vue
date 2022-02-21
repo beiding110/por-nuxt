@@ -166,7 +166,7 @@ export default {
 }
 
 .my-pagination {
-    /deep/ {
+    ::v-deep {
         .el-pagination.is-background .btn-prev, .el-pagination.is-background .btn-next, .el-pagination.is-background .el-pager li{
             border: 1px solid #e3e4e9;
             background: white;
