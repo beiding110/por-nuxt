@@ -19,6 +19,8 @@ var baseConfig = {
     plugins: [
         '~/plugins/axios',
         '~/plugins/appjs',
+        '~/plugins/vue-clipboard2',
+        '~/plugins/hb.baidu',
     ],
     modules: [
         '@nuxtjs/axios',
