@@ -14,3 +14,6 @@ a {cursor:pointer; text-decoration:none;}
 /* 滑块颜色 */::-webkit-scrollbar-button {display:none;}
 /* 滑轨两头的监听按钮颜色 */::-webkit-scrollbar-corner {opacity:0;}
 /* 横向滚动条和纵向滚动条相交处尖角的颜色 *//*vis样式类*/.vis-item.success {background:#67C23A;border-color:#67C23A;}
+
+/* 占整行的tableform项样式 */
+.table-full-row{width:100% !important;}
