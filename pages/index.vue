@@ -17,6 +17,8 @@
             <my-checkbox :data="[{key:1,value:'123'}, {key:2,value:'234'}]"></my-checkbox>
         </my-form>
         <my-pagination action="/platform/index/news/list"></my-pagination>
+
+        <upload-s fileguid="fileguid-test-000" single></upload-s>
     </section>
 </template>
 

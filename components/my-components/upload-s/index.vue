@@ -225,6 +225,19 @@ export default {
         progressWidth() {
             return this.size - 30;
         },
+        computeLimit() {
+            var limit = false;
+
+            if (this.limit) {
+                limit = this.limit;
+            }
+
+            if (this.single) {
+                limit = 1;
+            }
+
+            return limit;
+        },
     },
     watch: {
         fileguid: function (e) {
@@ -354,7 +367,7 @@ export default {
 
                     }).link(next => {
                         // 文件数量判断
-                        if (this.limit && (this.fileList.length + this.uploaderInnerFiles > this.limit)) {
+                        if (this.computeLimit && (this.fileList.length + this.uploaderInnerFiles > this.computeLimit)) {
 
                             this.debounceDialogs.limit();
 
@@ -399,7 +412,7 @@ export default {
          * files, fileList
          */
         handleExceed: function () {
-            this.limit && showMsg('限制上传' + this.limit + '个文件', 'error');
+            this.computeLimit && showMsg('限制上传' + this.computeLimit + '个文件', 'error');
         },
         /**
          * 上传成功
@@ -514,7 +527,7 @@ export default {
                     showMsg(`文件类型应为:${that.filetype}`, 'error');
                 }, 1000 / 24),
                 limit: debounce(() => {
-                    showMsg(`总文件数量超过${that.limit}个`, 'error');
+                    showMsg(`总文件数量超过${that.computeLimit}个`, 'error');
                 }, 1000 / 24),
                 filesize: debounce(() => {
                     showMsg(`文件大小超过:${that.filesize}M`, 'error');
