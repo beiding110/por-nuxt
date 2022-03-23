@@ -11,9 +11,11 @@
         :summary-method="summaryMethod"
         :show-summary="showSummary"
         :span-method="spanMethod"
+        :row-key="rowKey"
+        default-expand-all
         >
             <el-table-column type="selection" width="55" v-if="select" :selectable="selectable"></el-table-column>
-        	<slot></slot>
+            <slot></slot>
         </el-table>
 </template>
 
@@ -81,6 +83,10 @@ export default {
             type: Function,
             default: function() {}
         },
+        rowKey: {
+            type: String,
+            default: '',
+        }
     },
     data () {
         return {
@@ -105,11 +111,18 @@ export default {
                     this.setRowSelection(n);
                 })
             }, deep: true
+        },
+        data: {
+            handler() {
+                this.doLayout();
+            }, deep: true,
         }
     },
     methods: {
         //表格选中项变化
         handleSelectionChange: function(node) {
+            this.valueWatchLock = true;
+
             this.$emit('input',node);
             this.$emit('selectchange',node);
         },
@@ -123,7 +136,7 @@ export default {
             if (!this.url) return;
             this.$get(this.url, this.search, function (data) {
                 !!this.after && this.after(data, function (newData) {
-                    if (!!newData) {
+                    if (newData) {
                         data = newData;
                     }
                 });
@@ -143,6 +156,9 @@ export default {
             }
 
             this.valueWatchLock = true;
+        },
+        doLayout() {
+            this.$refs.table.doLayout();
         },
     },
     mounted: function() {
