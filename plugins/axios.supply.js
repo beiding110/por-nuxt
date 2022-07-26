@@ -230,7 +230,9 @@ var resInterceptors = (data, config, header, context) => {
         console.error(data);
     }
 
-    if (res !== false) {
+    if (data.code === 'v') {
+        return [res, data];
+    } else if (res !== false) {
         return [res, data];
     } else {
         return false;
