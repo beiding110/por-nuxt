@@ -17,6 +17,7 @@ if(config.plugins.sentry) {
 
 var baseConfig = {
     plugins: [
+        '~/plugins/token',
         '~/plugins/axios',
         '~/plugins/appjs',
         '~/plugins/vue-clipboard2',
