@@ -46,7 +46,14 @@ var mixin = (axios, app) => {
         }).then(([data, res]) => {
             settings.callback.call(this, data, res);
         }).catch(err => {
-            resError(err.response, settings, app);
+            if (err.response) {
+                resError(err.response, settings, app);
+            } else {
+                console.error({
+                    err,
+                    settings,
+                });
+            }
         });
     };
 
@@ -61,7 +68,14 @@ var mixin = (axios, app) => {
         }).then(([data, res]) => {
             settings.callback.call(this, data, res);
         }).catch(err => {
-            resError(err.response, settings, app);
+            if (err.response) {
+                resError(err.response, settings, app);
+            } else {
+                console.error({
+                    err,
+                    settings,
+                });
+            }
         });
     };
 
@@ -78,7 +92,14 @@ var mixin = (axios, app) => {
         axios(axiosSetting).then(([data, res]) => {
             axiosSetting.callback && axiosSetting.callback.call(this, data, res);
         }).catch(err => {
-            resError(err.response, axiosSetting, app);
+            if (err.response) {
+                resError(err.response, axiosSetting, app);
+            } else {
+                console.error({
+                    err,
+                    settings,
+                });
+            }
         }).finally(() => {
             axiosSetting.complete && axiosSetting.complete.call(this);
         });
