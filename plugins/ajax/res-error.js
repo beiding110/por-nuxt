@@ -43,7 +43,7 @@ var switchObj = {
 
 export default function (XHR, settings, app) {
     var { data, status, responseJSON } = XHR,
-        res,
+        res = {},
         mapped = switchObj[status] || {};
 
     if (responseJSON) {
