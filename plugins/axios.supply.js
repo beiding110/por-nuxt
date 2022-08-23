@@ -2,9 +2,7 @@ import Vue from 'vue'
 import resError from './ajax/res-error';
 import intercptorsReq from './ajax/interceptors-req';
 import argsCheck from './ajax/args-check';
-
-import configs from '~/configs'
-import { MessageBox } from 'element-ui';
+import resCheck from './ajax/res-check';
 
 /**
 * 判断是否为服务器端
@@ -115,122 +113,9 @@ var mixin = (axios, app) => {
 };
 
 var resInterceptors = (data, config, header, context) => {
-    var redirect = context.redirect;
-
-    const consoleString = JSON.stringify({
-        request: config,
-        response: data
-    });
-
-    var switchObj = {
-        v: () => data.tdata,
-        pglist: () => data,
-        valerror: () => {
-            config.error && config.error();
-
-            isNode(() => {
-                console.error(consoleString);
-            }, () => {
-                if(configs.plugins.element) {
-                    MessageBox({
-                        message: data.msg,
-                        type: 'error'
-                    });
-                } else {
-                    alert('valerror:' + data.msg);
-                };
-            });
-            return false;
-        },
-        'login-index': () => {
-            config.error && config.error();
-
-            isNode(() => {
-                console.warn(consoleString);
-                redirect('/login');
-            }, () => {
-                if(configs.plugins.element) {
-                    MessageBox({
-                        message: data.msg,
-                        type: 'error',
-                        callback: () => {
-                            window.location.assign('/login');
-                        }
-                    });
-                } else {
-                    window.location.assign('/login');
-                };
-            });
-
-            return false;
-        },
-        'redirect': () => {
-            config.error && config.error();
-
-            isNode(() => {
-                console.warn(`即将redirect：${consoleString}`);
-
-                var redirectfrom = context.route.path,
-                    redirectto = data.url;
-
-                redirect({
-                    path: redirectto,
-                    query: {
-                        ...context.route.query,
-                        redirectfrom
-                    }
-                });
-            }, () => {
-                if(configs.plugins.element) {
-                    MessageBox({
-                        message: data.msg,
-                        type: 'error',
-                        callback: () => {
-                            window.location.assign(data.url);
-                        }
-                    });
-                } else {
-                    window.location.assign(data.url);
-                };
-            });
-            return false;
-        },
-        error: () => {
-            config.error && config.error();
-            
-            isNode(() => {
-                console.error(consoleString);
-            }, () => {
-                if(configs.plugins.element) {
-                    MessageBox({
-                        message: data.msg,
-                        type: 'error'
-                    });
-                } else {
-                    alert('error:' + data.msg);
-                };
-                throw new Error(JSON.stringify(consoleString));
-            });
-            return false;
-        }
-    };
-
-    var fun = switchObj[data.code],
-        res = false;
-
-    if (fun) {
-        res = fun();
-    } else {
-        console.error(data);
-    }
-
-    if (data.code === 'v') {
-        return [res, data];
-    } else if (res !== false) {
-        return [res, data];
-    } else {
-        return false;
-    }
+    return resCheck(data, config, (data, res) => {
+        return [data, res];
+    }, context);
 }
 
 export default {
