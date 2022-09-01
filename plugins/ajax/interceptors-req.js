@@ -10,13 +10,17 @@ const API = '';
 export default function request(config, app) {
     const TOKEN = app.getToken();
 
-    var { url, fztype, data, callback, complete, type } = config,
+    var { url, fztype, data, callback, complete, type, method } = config,
         ts = new Date().getTime(),
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
             'Authorization': 'Basic YmlkZGluZzpseXhfc2VjcmV0',
             'bidding-auth': TOKEN,
         };
+
+    if (method) {
+        type = method;
+    }
 
     if (API.globalUrl) {
         url = api.globalUrl + url;
