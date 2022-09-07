@@ -1,57 +1,188 @@
 <template>
 	<el-cascader
 		ref="cascader"
-		class="cascader-hy"
+		class="my-cascader"
 		v-model="model"
 		:placeholder="placeholder"
 		:options="options"
-		:props="props"
+		:props="mixedProps"
 		clearable
 		@change="changeHandler"
+        :filterable="filterable"
+        :collapse-tags="collapseTags"
+        :show-all-levels="showAllLevels"
 	></el-cascader>
 </template>
 
 <script>
-import MODEL from '@/mixins/model'
-import TWO_WAY from '@/mixins/2way'
-
 export default {
-    mixins: [MODEL, TWO_WAY],
-	props: {
+    mixins: [],
+    props: {
+        // 双向绑定
+        value: {
+            type: [Array, String, Number],
+            default: ''
+        },
+        // 只读
         disabled:{
             type:Boolean,
             default:false
         },
+        // 展示清空按钮
         clearable:{
             type:Boolean,
             default:true
         },
-		placeholder: {
-			type: String,
-			default: ''
+        // placeholder内容
+        placeholder: {
+            type: String,
+            default: ''
         },
+        // 配置选项
         props: {
             type: Object,
             default: function () {
-                return {
-                    emitPath: false,
-				value: 'id',
-				label: 'text'
-                }
+                return {};
             }
         },
+        // 传入的data
         data: {
             type: Array,
             default: () => []
         },
+        // 自动请求的接口地址
         url: {
             type: String
         },
-	},
-	data() {
-		return {
-			options: [],
-		};
+        // 绑定字符串，props.multiple为true可用，低版本无props.emitPath可用
+        modelStr: {
+            type: Boolean,
+            default: false,
+        },
+        // 绑定字符串时，字符串间链接字符
+        strSpliter: {
+            type: String,
+            default: ','
+        },
+        /* 
+        使用后的参数，会具备双向绑定功能
+        参数应为数据中的键，如[{label: 'label', value: 'value'}]
+        如 2way="label"
+        :label.sync="form.label"
+        */
+        '2way': {
+            type: String
+        },
+        // 2way字符串间链接字符
+        '2wayStrSpliter': {
+            type: String,
+            default: '-'
+        },
+        // 是否可搜索选项	
+        filterable: {
+            type: Boolean,
+            default: false,
+        },
+        // 多选模式下是否折叠Tag	
+        collapseTags: {
+            type: Boolean,
+            default: false,
+        },
+        // 输入框中是否显示选中值的完整路径，同时作用于2way的字段
+        showAllLevels: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    data() {
+        return {
+            options: [],
+            leafs: [],
+        };
+    },
+    computed: {
+        model: {
+            get() {
+                if (this.mixedProps.emitPath) {
+                    // 绑定完整路径数组
+
+                    if (this.modelStr) {
+                        return this.getFullPath(this.value, this.leafs).reverse();
+                    }
+
+                    return this.value;
+                }
+
+                // 绑定叶子值
+                if (this.mixedProps.multiple) {
+                    // 可多选
+                    if (this.modelStr) {
+                        //绑定字符串
+                        return this.value.split(this.strSpliter);
+                    }
+
+                    return this.value;
+                }
+
+                // 不可多选
+                return this.value;
+                    
+            },
+            set(val) {
+                var length;
+
+                if (this.mixedProps.emitPath) {
+                    // 绑定完整路径数组
+                    if (this.modelStr) {
+                        // 使用了modelStr
+                        length = val.length;
+
+                        if (length) {
+                            this.$emit('input', val[length - 1]);
+                        } else {
+                            this.$emit('input', '');
+                        }
+                        
+                        return;
+                    }
+
+                    this.$emit('input', val);
+                    return;
+                }
+                
+                // 绑定叶子值
+                if (this.mixedProps.multiple) {
+                    // 可多选
+                    length = val.length;
+
+                    if (length) {
+                        if (this.modelStr) {
+                            this.$emit('input', val.join(this.strSpliter));
+                            return;
+                        }
+
+                        this.$emit('input', val);
+                    } else {
+                        this.$emit('input', '');
+                    }
+
+                    return;
+                }
+                
+                // 不可多选
+                this.$emit('input', val);
+            }
+        },
+        mixedProps() {
+            return {
+                emitPath: false,
+                multiple: false,
+                checkStrictly: false,
+                value: 'id',
+                label: 'text',
+                ...this.props,
+            };
+        },
     },
     watch: {
         url() {
@@ -63,35 +194,117 @@ export default {
             }, deep: true
         }
     },
-	methods: {
-		queryData() {
-            if(this.url) {
+    methods: {
+        queryData() {
+            if (this.url) {
                 this.$get(this.url, data => {
                     this.options = data;
+                    this.dataRebuild(data, this.mixedProps.value);
                 });
             }
-            if(this.data.length) {
+            if (this.data.length) {
                 this.options = this.data;
+                this.dataRebuild(this.data, this.mixedProps.value);
             }
-		},
-		changeHandler() {
-			// console.log(row)
-			this.$nextTick(() => {
+        },
+        changeHandler() {
+            this.$nextTick(() => {
                 const selNodes = this.$refs.cascader.getCheckedNodes();
-                const selNode = selNodes[0];
-                selNode && this.twoWayHandler(selNode.data);
 
+                selNodes && this.twoWayHandler(selNodes);
 
                 this.$emit('change', selNodes);
-			})
-		}
-	},
-	created() {
-		this.queryData();
-	}
-}
+            });
+        },
+        dataRebuild(obj, key) {
+            obj.forEach(item => {
+                if (item.children && item.children.length) {
+                    item.children.forEach(child => {
+                        child.parent = item;
+                    });
+
+                    this.dataRebuild(item.children, key);
+                } else {
+                    try {
+                        delete item.children;
+                    } catch (e) {
+                        //删除children失败
+                    }
+
+                    this.leafs.push(item);
+                }
+            });
+        },
+        getFullPath(key, arr) {
+            var res = [key],
+                filtedItem = arr.filter(item => item[this.mixedProps.value] === key)[0],
+                patentData;
+
+            if (filtedItem) {
+                if (filtedItem.parent) {
+                    patentData = this.getFullPath(filtedItem.parent[this.mixedProps.value], [filtedItem.parent]);
+                } else {
+                    patentData = [];
+                }
+                res.push.apply(res, patentData);
+            }
+
+            return res;
+        },
+        twoWayHandler(selNodes) {
+            if (this['2way']) {
+                var modelArr = this['2way'].split(','),
+                    updateValue;
+
+                modelArr.forEach(key => {
+                    if (this.mixedProps.multiple) {
+                        // 多选
+
+                        updateValue = selNodes.filter(selNode => !selNode.hasChildren).map(selNode => {
+                            return this.twoWayObjBuilder(selNode, key);
+                        });
+
+                        if (this.modelStr) {
+                            updateValue = updateValue.join(this.strSpliter);
+                        }
+                    } else {
+                        // 单选
+                        
+                        var rowItem = selNodes[0];
+
+                        if (!rowItem) {
+                            return;
+                        }
+
+                        updateValue = this.twoWayObjBuilder(rowItem, key);
+                    }
+
+                    this.$emit(`update:${key}`, updateValue);
+                });
+            }
+        },
+        twoWayObjBuilder(node, key) {
+            var item = node.pathNodes.map(nodeItem => {
+                return nodeItem.data[key];
+            });
+
+            if (this.showAllLevels) {
+                if (!this.mixedProps.emitPath) {
+                    item = item.join(this['2wayStrSpliter']);
+                } 
+            } else {
+                item = item[item.length - 1];
+            }
+
+            return item;
+        }
+    },
+    created() {
+        this.queryData();
+    }
+};
 </script>
 
-<style>
-	.cascader-hy{width:100%;}
+<style lang="scss" scoped>
+	.my-cascader{width:100%;}
 </style>

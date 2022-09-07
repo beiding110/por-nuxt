@@ -1,14 +1,15 @@
 <template>
-    <span class="my__checkbox">
+    <span class="my-checkbox">
         <span v-if="!readonly">
             <el-checkbox-group v-model="model" style="display:inline-block;">
-            	<el-checkbox v-for="item in list" 
+                <el-checkbox v-for="item in list" 
                     :key="item[props.value]" 
                     :label="item[props.value]"
                 >
                     {{item[props.label]}}
                 </el-checkbox>
             </el-checkbox-group>
+
             <el-checkbox v-model="otherController" style="margin-left:1em;" v-if="other" disabled>
                 <el-input v-model="input" placeholder="其它" size="mini"></el-input>
             </el-checkbox>
@@ -24,26 +25,31 @@
 export default {
     name: 'my-checkbox',
     props: {
+        // 双向绑定
         value: {
             type: [Array, String],
             default() {
                 return []
             }
         },
-        action: {
+        // 自动请求的接口地址
+        url: {
             type: String,
             default: ''
         },
+        // 显示“其他”选项
         other: {
             type: Boolean,
             default: false
         },
+        // 传入的data
         data: {
             type: Array,
             default() {
                 return []
             }
         },
+        // 配置选项
         props: {
             type: Object,
             default() {
@@ -53,18 +59,22 @@ export default {
                 }
             }
         },
+        // 只读
         readonly: {
             type: Boolean,
             default: false
         },
+        // 全部选中
         all: {
             type: Boolean,
             default: false
         },
+        // 绑定字符串
         modelStr: {
             type: Boolean,
             default: false
         },
+        // 绑定字符串时，字符串间链接字符
         strSpliter: {
             tyep: String,
             default: ','
@@ -83,7 +93,7 @@ export default {
             get: function () {
                 if(this.modelStr) {
                     var valueArr = [];
-                    if(getType(this.value) === 'string') {
+                    if(typeof(this.value) === 'string') {
                         valueArr = this.value.split(this.strSpliter);
                     };
                     if(valueArr[0] === '') {
@@ -156,8 +166,8 @@ export default {
     },
     methods: {
         queryData: function () {
-            if (!!this.action) {
-                this.$get(this.action, function (data) {
+            if (!!this.url) {
+                this.$get(this.url, function (data) {
                     this.list = data;
 
                     this.readonlyStr = this.fetchKey();
@@ -192,13 +202,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-    .my__checkbox{
+    .my-checkbox{
 
     }
 
     @media screen and (max-width:500px) {
-        .my__checkbox{
-            ::v-deep .el-checkbox{margin-left:0; margin-right:1em;}
+        .my-checkbox{
+            ::v-deep .el-checkbox{
+                margin-left:0; 
+                margin-right:1em;
+            }
         }
     }
 </style>
