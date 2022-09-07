@@ -59,7 +59,7 @@
 
 <script>
 import appNode from '@js/app-node';
-import ajaxResCheck from './assets/js/res-check';
+import ajaxResCheck from '@plugins/ajax/res-check';
 
 import FileList from './components/file-list';
 

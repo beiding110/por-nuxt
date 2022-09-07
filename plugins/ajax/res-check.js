@@ -21,8 +21,16 @@ export default function(obj, settings, callback, context){
     }
 
     var switchObj = {
-        v: () => [obj.tdata, obj],
-        pglist: () => obj,
+        v: () => {
+            innerCallback && innerCallback(obj.data, obj);
+
+            return [obj.tdata, obj];
+        },
+        pglist: () => {
+            innerCallback && innerCallback(obj.data, obj);
+            
+            return obj;
+        },
         valerror: () => {
             settings.error && settings.error();
 
