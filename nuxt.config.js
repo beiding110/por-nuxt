@@ -96,7 +96,10 @@ var baseConfig = {
                 config.resolve.alias[key] = aliasArr[key];
             });
         },
-        vendor: ['axios']
+        vendor: ['axios'],
+        transpile: [
+            'vue-lazyload',
+        ],
     },
     router: {
         extendRoutes(routes) {
