@@ -1,3 +1,28 @@
+const PROXY_MAP = {
+    development: {
+        '/pms': {
+            target: 'http://192.168.1.100:12000',
+            changeOrigin:true,
+        },
+        '/platform': {
+            target: 'http://www.hgchzx.com',
+            changeOrigin:true,
+        }
+    },
+    production: {
+        '/pms': {
+            target: 'http://192.168.1.100:12000',
+            changeOrigin:true,
+        },
+        '/platform': {
+            target: 'http://www.hgchzx.com',
+            changeOrigin:true,
+        }
+    }
+};
+
+const PROXY_ENV = PROXY_MAP[process.env.NODE_ENV];
+
 export default {
     head: {
         title: 'Nuxt',
@@ -26,14 +51,5 @@ export default {
             show: 'pic1'
         }
     },
-    proxy: {
-        '/pms': {
-            target: 'http://192.168.1.100:12000',
-            changeOrigin:true,
-        },
-        '/platform': {
-            target: 'http://www.hgchzx.com',
-            changeOrigin:true,
-        }
-    },
+    proxy: PROXY_ENV,
 }
