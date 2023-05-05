@@ -174,8 +174,6 @@ export default {
     },
     methods: {
         bindFileList: function () { //绑定文件列表
-            var that = this;
-
             if(!this.fileGuid) return;
             if(this.getListLoading) return;
 
@@ -190,13 +188,13 @@ export default {
                 data,
                 callback: data => {
                     this.fileList = data || [];
-                    this.$emit('update', this.fileList);
+
+                    this.fileListUpdateHandler();
                 },
                 complete: () => {
                     this.getListLoading = false;
                 }
             });
-            this.fileListUpdateHandler();
         },
         deleteHandler(row, cb) {
             ShowConfirm('删除附件后无法撤销，请确认是否删除', 'warning', () => {
