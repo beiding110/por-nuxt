@@ -20,6 +20,11 @@ export default function(obj, settings, callback, context){
         innerCallback = settings;
     }
 
+    const consoleString = JSON.stringify({
+        request: settings,
+        response: obj
+    });
+
     var switchObj = {
         v: () => {
             innerCallback && innerCallback(obj.data, obj);

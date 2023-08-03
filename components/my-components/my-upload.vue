@@ -84,6 +84,9 @@
 </template>
 
 <script>
+import appNode from '@js/app-node.js';
+import ajaxResCheck from '@plugins/ajax/res-check';
+
 export default {
     props: {
         action: {
@@ -164,7 +167,7 @@ export default {
                 single: (this.single * 1)
             };
 
-            mixin(this.extra, extra, true);
+            appNode.mixin(this.extra, extra, true);
 
             return extra;
         },
@@ -181,7 +184,7 @@ export default {
             var data = {
                 fileguid: this.fileGuid
             };
-            mixin(this.extra, data, true);
+            appNode.mixin(this.extra, data, true);
 
             this.$ajax({
                 url: `${this.getGetters('fileUrl')}/operate/getlist.json`,
