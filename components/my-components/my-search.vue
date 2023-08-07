@@ -45,7 +45,7 @@ export default {
         },
         alive: {
             type: Boolean,
-            default: true
+            default: false
         }
     },
     data () {
