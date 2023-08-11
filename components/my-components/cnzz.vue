@@ -38,6 +38,17 @@ export default {
     },
     methods: {
         setCnzz() {
+            if (document.querySelector('id[class^="cnzz_stat_icon_"]')) {
+                // 防止重复加载
+                return;
+            }
+
+            if (document.querySelector('script[src*="s9.cnzz.com/z_stat.php"]')) {
+                // 防止重复加载
+                
+                return;
+            }
+
             var script = document.createElement('script'),
             protocol = (("https:" == document.location.protocol) ? " https://" : " http://");
             script.src = (protocol + `s9.cnzz.com/z_stat.php?id=${this.cid}&show=pic1`);
