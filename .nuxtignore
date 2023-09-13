@@ -2,3 +2,8 @@ pages/**/components/*
 pages/**/component/*
 pages/**/sections/*
 pages/**/section/*
+pages/**/layout/*
+pages/**/mixins/*
+pages/**/style/*
+pages/**/css/*
+pages/**/js/*

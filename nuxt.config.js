@@ -1,5 +1,6 @@
-import config from './configs/index.js'
-import path from 'path'
+import config from './configs/index.js';
+import path from 'path';
+import sitemap from './configs/sitemap.js';
 
 var initSentry;
 
@@ -27,11 +28,13 @@ var baseConfig = {
         '@nuxtjs/axios',
         '@nuxtjs/proxy',
         'cookie-universal-nuxt',
+        '@nuxtjs/sitemap', // 始终放在最后一个
     ],
     axios: {
         proxy: true, // 表示开启代理
         credentials: true // 表示跨域请求时是否需要使用凭证
     },
+    sitemap,
     /*
     ** Headers of the page
     */
