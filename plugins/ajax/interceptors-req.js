@@ -1,6 +1,6 @@
 import qs from 'qs';
 
-const API = '';
+const API = {};
 
 /**
  * 请求拦截器
@@ -23,7 +23,7 @@ export default function request(config, app) {
     }
 
     if (API.globalUrl) {
-        url = api.globalUrl + url;
+        url = API.globalUrl + url;
     }
 
     url = /\?/.test(url) ? url + '&random=' + ts : url + '?random=' + ts;
