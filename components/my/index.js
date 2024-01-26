@@ -25,6 +25,7 @@ export default{
         Vue.component('cnzz', function(){return import(/*webpackChunkName: 'coms'*/ './cnzz')});
 
         Vue.component('ueditor', function(){return import(/*webpackChunkName: 'coms'*/ './ueditor')});
+        Vue.component('tinymce', function(){return import(/*webpackChunkName: 'coms'*/ './tinymce');});
 
         Vue.component('my-frame', function(){return import(/*webpackChunkName: 'coms'*/ './frame')});
         Vue.component('my-img', function(){return import(/*webpackChunkName: 'coms'*/ './img')});
