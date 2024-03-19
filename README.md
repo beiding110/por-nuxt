@@ -8,7 +8,7 @@ nuxt通用模板，集成了：
 * `工具库`：jquery、echarts、qrcode（二维码）、vue-clipboard2（剪贴板）、
 * `css预处理`：~~node-sass~~、sass(dart-sass)、
 * `运维及统计`：sentry、cnzz、hm-baidu、
-* `nuxt插件`：axios、cookie-universal-nuxt、
+* `nuxt插件`：axios、cookie-universal-nuxt、nuxt-winston-log、
 
 ## Build Setup
 

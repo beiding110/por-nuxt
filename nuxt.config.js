@@ -1,6 +1,7 @@
 import config from './configs/index.js';
 import path from 'path';
 import sitemap from './configs/sitemap.js';
+import logger from './configs/logger.js';
 
 var initSentry;
 
@@ -28,6 +29,7 @@ var baseConfig = {
         '@nuxtjs/axios',
         '@nuxtjs/proxy',
         'cookie-universal-nuxt',
+        'nuxt-winston-log',
         '@nuxtjs/sitemap', // 始终放在最后一个
     ],
     axios: {
@@ -35,6 +37,7 @@ var baseConfig = {
         credentials: true // 表示跨域请求时是否需要使用凭证
     },
     sitemap,
+    winstonLog: logger,
     /*
     ** Headers of the page
     */
