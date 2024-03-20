@@ -143,5 +143,7 @@ export default function(obj, settings, callback, context){
                 obj,
                 msg: 'unexpeted ajaxResCheck code'
             });
+
+            return false;
         }());
 }
