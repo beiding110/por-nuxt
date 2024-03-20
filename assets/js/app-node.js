@@ -635,6 +635,15 @@ function ssrReq(url, data) {
             params: data,
         }).then(([data, res]) => {
             resolve(data)
+        }).catch(e => {
+            let err = {
+                url,
+                error: e,
+            };
+
+            console.log(JSON.stringify(err));
+
+            reject(e);
         });
     });
 };
