@@ -33,6 +33,7 @@ export default{
         // Vue.component('word', function(){return import(/*webpackChunkName: 'coms'*/ './word')});
         Vue.component('photo', function(){return import(/*webpackChunkName: 'coms'*/ './picture-view')});
         Vue.component('word-view', function(){return import(/*webpackChunkName: 'coms'*/ './word-view')});
+        Vue.component('file-preview', function(){return import(/*webpackChunkName: 'coms'*/ './file-preview');});
 
         Vue.component('upload-s', function(){return import(/*webpackChunkName: 'coms'*/ './upload-s/index')});
     }
