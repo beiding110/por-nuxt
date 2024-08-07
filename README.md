@@ -21,6 +21,7 @@ $ npm run dev
 
 # build for production and launch server
 $ npm run build
+$ npm run build --standalone	// 将node_modules打包入server
 $ npm start
 
 # generate static project
