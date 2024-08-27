@@ -43,7 +43,7 @@ export default {
         plugins: {
             type: [String, Array],
             default:
-                'searchreplace autolink directionality visualblocks visualchars fullscreen image link template code table hr nonbreaking insertdatetime advlist lists wordcount imagetools textpattern autosave autoresize ',
+                'searchreplace autolink directionality visualblocks visualchars fullscreen image link template code table hr nonbreaking insertdatetime advlist lists wordcount imagetools textpattern autosave autoresize',
             // preview searchreplace autolink directionality visualblocks visualchars fullscreen image link media template code codesample table charmap hr nonbreaking insertdatetime advlist lists wordcount imagetools textpattern autosave bdmap autoresize
         },
         //默认工具栏 选择你需要的 注释掉的为富文本全部默认工具
@@ -85,6 +85,7 @@ export default {
                 convert_urls: false,
                 images_upload_handler: this.imagesUploadHandler,
                 menubar: 'file edit view format tools table',
+                relative_urls: false, // 相对路径
             },
 
             imageUploadUrl: `${this.getGetters('fileUrl')}/file-upload/editor`,
@@ -140,7 +141,23 @@ export default {
                     failure('Invalid JSON: ' + xhr.responseText);
                     return;
                 }
+                
                 success(json.data);
+
+                // 返回值中只有地址
+                // var url = xhr.responseText;
+
+                // if (!url || typeof url !== 'string') {
+                //     failure('Invalid URL: ' + xhr.responseText);
+                //     return;
+                // }
+
+                // success(url);
+
+                // 将图片转换成base64
+                // let base64 = "data:"+ blobInfo.blob().type + ";base64,"  + blobInfo.base64();
+
+                // success(base64);
             };
 
             xhr.onerror = function () {
