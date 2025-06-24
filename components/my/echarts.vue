@@ -522,9 +522,11 @@ export default {
         });
     },
     watch: {
-        data: function (e) {
-            var that = this;
-            this.myChart.setOption(e);
+        data: {
+            handler(e) {
+                this.myChart.setOption(e);
+            },
+            deep: true,
         }
     }
 }

@@ -172,12 +172,14 @@ export default {
 
             if (this.multiple) {
                 var arr = [];
+                
                 if (Array.isArray(item) && item.length > 0) {
                     item.forEach(function (selkey) {
                         arr.push(this.options[selkey])
                     }.bind(this));
-                    this.$emit("select", arr);
                 }
+                
+                this.$emit("select", arr);
             } else {
                 this.$emit("select", this.options[item] || {});
             };
