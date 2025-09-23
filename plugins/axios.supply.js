@@ -24,6 +24,7 @@ var ajaxKeyMap = function(type) {
         ['url', 'url'],
         ['data', (type === 'post' ? 'data' : 'params')],
         ['callback', 'callback'],
+        ['success', 'callback'],
         ['error', 'error'],
         ['complete', 'complete'],
         ['fztype', 'fztype'],
@@ -82,7 +83,9 @@ var mixin = (axios, app) => {
         axiosSetting = {};
 
         keyMap.forEach(item => {
-            axiosSetting[item[1]] = settings[item[0]];
+            if (settings[item[0]]) {
+                axiosSetting[item[1]] = settings[item[0]];
+            }
         });
         
         axiosSetting = intercptorsReq(axiosSetting, app);
