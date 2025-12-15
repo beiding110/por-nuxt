@@ -134,7 +134,7 @@ export default {
                         that.options = that.list2map(data || []);
 
                         // 默认选中首个
-                        if (that.defaultFirst && data[0]) {
+                        if (!that.svalue && that.defaultFirst && data[0]) {
                             that.svalue = data[0][that.props.value];
                             that.selectChange(data[0][that.props.value]);
                         }
@@ -147,7 +147,7 @@ export default {
                     that.options = that.list2map(this.data || []);
 
                     // 默认选中首个
-                    if (this.defaultFirst && this.data[0]) {
+                    if (!that.svalue && this.defaultFirst && this.data[0]) {
                         this.svalue = this.data[0][this.props.value];
                         this.selectChange(this.data[0][this.props.value]);
                     }
